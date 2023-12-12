@@ -295,39 +295,56 @@ def tiling(prime, seq, tile_len):
     maps[(0,0)]=(tiles[key1][1],tiles[key1][1],tiles[key0][1],-1,-1) # -1 implies a missing image tile index
     new_tiles[(0,1)]=True # Value here is arbitrary, so long as it isn't set to False
     new_tiles[(1,0)]=True
+    # Tracker for number of tiles generated
+    tiles_gen=0
     # Loop over all slices until all new tiles found
     while(slice_count<growth_marker*2):
         current_slice=slice_gen(prime, current_slice, [seq(i)%prime for i in range((slice_count*tile_len)-2, ((slice_count+1)*tile_len)-2)])
         slice_count += 1
+        # progress tracker print statement
         if(slice_count%50==0):
             print(slice_count, len(tiles))
+        col=slice_count-1
+        row=0
         for i in range(slice_count):
-            # Increment row and col near here
             new_tile=[]
-            # New parent 'if', does (row, col) appear in new_tiles?
+            #print("row and col", row, col)
+            # Does (row, col) tile appear in new_tiles list
+            image_tile=new_tiles.get((row,col))
+            #print("image tile", image_tile)
+            if(image_tile):
+                tiles_gen += 1
             # If yes, generate tiling, find parent tile, and add index to mapping, and remove from new_tiles
             # If no, skip
-            # Specific logic for the top row
-            if(i==0):
-                new_tile.append(current_slice[1])
-                for j in range((tile_len-2)//2):
-                    new_tile.insert(0, [0 for k in range(tile_len-2-2*j)])
-                    new_tile.append(current_slice[2+j][-(tile_len-2-2*j):])
-            # All other rows
-            else:
-                new_tile.append(current_slice[1+i*(tile_len//2)])
-                for j in range((tile_len-2)//2):
-                    new_tile.insert(0, current_slice[i*(tile_len//2)-j][:(tile_len-2-2*j)])
-                    new_tile.append(current_slice[2+i*(tile_len//2)+j][-(tile_len-2-2*j):])
-            # Check if tile is new/unique
-            key=str(new_tile)
-            unique=tiles.get(key)
-            if not unique: # If tile not in tiles dict
-                tiles[key]=(new_tile,len(tiles)) # Add to tiles
-                newtile=True 
-                growth_marker=slice_count
-                # Also add (row,col) to maps dict, and record location of image tiles
-    print(len(tiles)) 
+                # Specific logic for the top row tiling
+                if(i==0):
+                    new_tile.append(current_slice[1])
+                    for j in range((tile_len-2)//2):
+                        new_tile.insert(0, [0 for k in range(tile_len-2-2*j)])
+                        new_tile.append(current_slice[2+j][-(tile_len-2-2*j):])
+                # All other row tilings
+                else:
+                    new_tile.append(current_slice[1+i*(tile_len//2)])
+                    for j in range((tile_len-2)//2):
+                        new_tile.insert(0, current_slice[i*(tile_len//2)-j][:(tile_len-2-2*j)])
+                        new_tile.append(current_slice[2+i*(tile_len//2)+j][-(tile_len-2-2*j):])
+                # Check if tile is new/unique
+                key=str(new_tile)
+                unique=tiles.get(key)
+                if not unique: # If tile not in tiles dict
+                    tiles[key]=(new_tile,len(tiles)) # Add to tiles
+                    growth_marker=slice_count
+                    # Also add (row,col) to maps dict, and record location of image tiles
+                    new_tiles[(row*2,col*2)]=True
+                    new_tiles[(row*2-1,col*2+1)]=True
+                    new_tiles[(row*2,col*2+1)]=True
+                    new_tiles[((row*2)+1,(col*2))]=True
+                new_tiles.pop((row,col))
+            # Increment row and decrement col here
+            row += 1
+            col -= 1
+    print("Number of unique tiles", len(tiles)) 
+    print("Number of generated tiles", tiles_gen)
     return tiles
 
 # Primary testing function
