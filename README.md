@@ -20,13 +20,14 @@ Input:
 - prime_input=3
 - sequence=paper_folding_seq (pap_f)
 - tile_length=8
-Output= 211 unique tiles after approx 200 slices
+Output= 211 unique tiles after approx 200 slices, and 837 total tiles processed (out of 21735)
 
 Input:
 - prime_input=7
 - sequence=paper_folding_seq (pap_f)
 - tile_length=8
 Output= 302,835 unique tiles after approx 15,000 slices (stabilising at 7500 slices)
+and xyz total tiles processed (out of )
 
 ## External links
 You can find several papers discussing the background to this work below:
