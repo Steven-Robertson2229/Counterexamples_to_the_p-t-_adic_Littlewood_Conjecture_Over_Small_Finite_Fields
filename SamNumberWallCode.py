@@ -1,11 +1,13 @@
 #import numpy
-from Sequences import pfseq1, TM
-from Number_Walls import numbwall, numbwall2
+#from Sequences import pfseq1, TM
+#from Number_Walls import numbwall, numbwall2
 import random as rn
 import copy as cop
+
 def ratio(X, Y, prime):
    return (X*div(Y, prime)) % prime
 
+# Note: this only works with prime 2, 3, 5, 7, and 11
 def div(num, prime):
     num=num%prime
     if prime==2:
@@ -24,7 +26,7 @@ def div(num, prime):
             return 2
         else: # num==4
             return 4
-    else: # prime==7
+    elif prime==7:
         if num==1:
             return 1
         elif num==2:
@@ -37,15 +39,41 @@ def div(num, prime):
             return 3
         else: # num==6
             return 6
+    else: # prime==11
+        if num==1:
+            return 1
+        elif num==2:
+            return 6
+        elif num==3:
+            return 4
+        elif num==4:
+            return 3
+        elif num==5:
+            return 9
+        elif num==6:
+            return 2
+        elif num==7:
+            return 8
+        elif num==8:
+            return 7
+        elif num==9:
+            return 5
+        else: # num==10
+            return 10
+
+    # otherwise it was a bad input
+    print("ERROR - bad input to div function.")
+    print("Input: ", prime)
     return "ERROR"
 
+# Function to grow an already existing Number Wall (prev_wall)
 # Note: when inputting a starting wall to wall_gen, add two additional
-# 1's to row 1 to avoid a crash 
+# 1's to prev_wall row 1 to avoid an edge case bug in the top row
 def wall_gen(prime, prev_wall, new_num):
     # only add rows if row 0 has odd length
     if (len(prev_wall[0])%2==0):
         prev_wall.append([])
-    # skip '-2' row
+    # skip '-2' and above rows
     # row -1 rule
     prev_wall[0].append(0)
     prev_wall[1].append(1)
@@ -55,8 +83,8 @@ def wall_gen(prime, prev_wall, new_num):
         cheat=True
         if row==len(prev_wall)-1:
             cheat=False
-        #assume 'row', 'col' iterators
-        #add in extra if layer for row-2 being 0
+        # cheat rules are more efficient computations that can only
+        # be used under specific scenarios
         if cheat:
             # window rule - cheat rule
             if ((prev_wall[row-1][-2]==0) and (prev_wall[row][-1]==0)):
@@ -85,10 +113,11 @@ def wall_gen(prime, prev_wall, new_num):
                 prev_wall[row].append(output)
             else:
                 cheat=False
+        # the regular rules are more computationally expensive
+        # and are roughly ordered by increasing computation cost
         if not cheat:
             # frame constraint 2
             if prev_wall[row-1][-2]==0 and prev_wall[row-2][-3]==0:
-                
                 current=0
                 diagA=0
                 diagB=0
@@ -124,7 +153,8 @@ def wall_gen(prime, prev_wall, new_num):
                 d=prev_wall[row-1][-1]
                 output=(((x**2)-(c*d))*div(a, prime)) % prime
                 prev_wall[row].append(output)
-            else: # outer frame rule - frame constraint 3
+            # outer frame rule - frame constraint 3
+            else:
                 # Find D
                 D=prev_wall[row-1][-2]
                 d=prev_wall[row-1][-1]
@@ -166,9 +196,12 @@ def wall_gen(prime, prev_wall, new_num):
 
     return prev_wall    
     
+# Test version of the method that also built a full Number Wall
+# alongside the slice, to allow for easy comparison
 def slice_gen_test(prime, prev_slice, new_nums, full_nw):
     tile_len=len(new_nums)
     new_slice=[]
+    # adds padding to input to avoid edge case bug in wall_gen
     prev_slice[0].append(0)
     prev_slice[0].append(0)
     prev_slice[1].append(1)
@@ -188,9 +221,12 @@ def slice_gen_test(prime, prev_slice, new_nums, full_nw):
         full_nw[i]=full_nw[i]+new_slice[i]
     return new_slice, full_nw
 
+# Generates the last 'x' number of reverse columns of the Number
+# Wall, where 'x' is the length of new_nums
 def slice_gen(prime, prev_slice, new_nums):
     tile_len=len(new_nums)
     new_slice=[]
+    # adds padding to input to avoid edge case bug in wall_gen
     prev_slice[0].append(0)
     prev_slice[0].append(0)
     prev_slice[1].append(1)
@@ -206,8 +242,8 @@ def slice_gen(prime, prev_slice, new_nums):
         new_slice.append(prev_slice[-offset+i])
     return new_slice
 
+# Function returns the nth element of the paper folding sequence
 def pap_f(n):
-    # This function returns the nth element of the paper folding sequence
     n += 1
     if n == 0:
         return 0
@@ -216,14 +252,16 @@ def pap_f(n):
             n = n / 2
     return int(((n-1)/2)%2)
 
+# Function returns the nth element of the pagoda sequence
 def pagoda(n):
-    # This function returns the nth element of the pagoda sequence
     return pap_f(n+1) - pap_f(n-1)
 
 # Todo:
     # - Add logic into tiling loop to only collate the tile if it is in the 
     #   new tile dict (otherwise it is simply already a tile we have!)
     # - (In progress) Add logic to generate tile->image mapping dict
+# Function records all unique tiles and tile->image mappings for a
+# given tile length, prime, and Number Wall sequence
 def tiling(prime, seq, tile_len):
     # Generate first slice
     prev_wall=[[0,0],[1,1,1,1],[seq(0),seq(1)]]
@@ -255,7 +293,7 @@ def tiling(prime, seq, tile_len):
     tiles[key1]=(tile1, 1) # Add to tiles
     # Map structure - key=location; value=(parent tile index, image tile a index, ...)
     maps[(0,0)]=(tiles[key1][1],tiles[key1][1],tiles[key0][1],-1,-1) # -1 implies a missing image tile index
-    new_tiles[(0,1)]=True # Value here is arbitrary, so long as it isnt set to False
+    new_tiles[(0,1)]=True # Value here is arbitrary, so long as it isn't set to False
     new_tiles[(1,0)]=True
     # Loop over all slices until all new tiles found
     while(slice_count<growth_marker*2):
@@ -264,7 +302,7 @@ def tiling(prime, seq, tile_len):
         if(slice_count%50==0):
             print(slice_count, len(tiles))
         for i in range(slice_count):
-            # Increment cow and col near here
+            # Increment row and col near here
             new_tile=[]
             # New parent 'if', does (row, col) appear in new_tiles?
             # If yes, generate tiling, find parent tile, and add index to mapping, and remove from new_tiles
@@ -292,24 +330,12 @@ def tiling(prime, seq, tile_len):
     print(len(tiles)) 
     return tiles
 
-
-
-
+# Primary testing function
 def main():
-    L=800
-    p=7
-    start_wall=[[0,0,0],[1,1,1],pfseq1(1,3,0,1),[0]]
-    lenny=8
-    #print(start_wall,pfseq1(4,8,0,1))
-    for i in pfseq1(4,lenny,0,1):
-        prev_slice=wall_gen(p, start_wall,i)
-    full_nw = cop.deepcopy(prev_slice)
-    for i in range(1,(L//lenny)):
-        #print(pfseq1(lenny*i+1,lenny*(i+1),0,1))
-        prev_slice,full_nw = slice_gen(p, prev_slice,pfseq1(lenny*i+1,lenny*(i+1),0,1),full_nw)
-    test_nw=numbwall2(numbwall(pfseq1(1,L,0,1),p))
-    print(test_nw==full_nw)
+    prime_input=3
+    tile_length=8
+    print("Tiling Test with mod", prime_input, "and tile length", tile_length)
+    tiling(prime_input, pap_f,tile_length)
+    #print("Add latest testing steps here")
 
-#main()
-
-print('AHHHHHHHHHHHHHHHH')
+main()
