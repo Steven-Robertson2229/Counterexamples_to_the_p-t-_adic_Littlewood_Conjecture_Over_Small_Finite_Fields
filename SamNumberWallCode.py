@@ -262,6 +262,8 @@ def pagoda(n):
     # - (In progress) Add logic to generate tile->image mapping dict
 # Function records all unique tiles and tile->image mappings for a
 # given tile length, prime, and Number Wall sequence
+# Note: This function is designed around the centre of tiles on row 0
+# being the input row 1 above the input sequence
 def tiling(prime, seq, tile_len):
     # Generate first slice
     prev_wall=[[0,0],[1,1,1,1],[seq(0),seq(1)]]
@@ -271,6 +273,7 @@ def tiling(prime, seq, tile_len):
     slice_count=1
     growth_marker=1
     tiles={}
+    tiles_by_index=[]
     maps={}
     new_tiles={}
     col=0
@@ -283,18 +286,25 @@ def tiling(prime, seq, tile_len):
         tile0.append([0 for j in range((tile_len-2)-(2*i))])
     key0=str(tile0)
     tiles[key0]=(tile0, 0)
+    tiles_by_index.append([tile0,(-1,-1)])
     # Map structure - key=location; value=(parent tile index, image tile a index, ...)
-    maps[(-1,-1)]=(tiles[key0][1],tiles[key0][1],tiles[key0][1],tiles[key0][1])
+    maps[(-1,-1)]=[tiles[key0][1],tiles[key0][1],tiles[key0][1],tiles[key0][1]]
     # Hard code first tile
     tile1=cop.deepcopy(prev_wall)
     for i in range(((tile_len-2)//2)-1):
         tile1.insert(0, [0 for j in range((tile_len-4)-(2*i))])
     key1=str(tile1)
     tiles[key1]=(tile1, 1) # Add to tiles
+    tiles_by_index.append([tile1,(0,0)])
     # Map structure - key=location; value=(parent tile index, image tile a index, ...)
-    maps[(0,0)]=(tiles[key1][1],tiles[key1][1],tiles[key0][1],-1,-1) # -1 implies a missing image tile index
-    new_tiles[(0,1)]=True # Value here is arbitrary, so long as it isn't set to False
-    new_tiles[(1,0)]=True
+    maps[(0,0)]=[tiles[key1][1],tiles[key1][1],tiles[key0][1],-1,-1] # -1 implies a missing image tile index
+    # Add images to dictionary of tiles that should be processed, where the value implies the following:
+    # 1 = left image tile
+    # 2 = upper image tile
+    # 3 = right image tile
+    # 4 = bottom image tile
+    new_tiles[(0,1)]=3
+    new_tiles[(1,0)]=4
     # Tracker for number of tiles generated
     tiles_gen=0
     # Loop over all slices until all new tiles found
@@ -303,21 +313,19 @@ def tiling(prime, seq, tile_len):
         slice_count += 1
         # progress tracker print statement
         if(slice_count%50==0):
-            print(slice_count, len(tiles))
+            print("Slice count:", slice_count,"- Unique tiles:", len(tiles), "- Processed tiles:", tiles_gen)
         col=slice_count-1
         row=0
         for i in range(slice_count):
             new_tile=[]
-            #print("row and col", row, col)
-            # Does (row, col) tile appear in new_tiles list
+            # Does tile (row, col) appear in new_tiles list
             image_tile=new_tiles.get((row,col))
-            #print("image tile", image_tile)
-            if(image_tile):
-                tiles_gen += 1
-            # If yes, generate tiling, find parent tile, and add index to mapping, and remove from new_tiles
+            if(image_tile!= None):
+            # If yes, generate tiling, check uniqueness, find parent tile to add index to mapping, and remove from new_tiles
             # If no, skip
+                tiles_gen += 1
                 # Specific logic for the top row tiling
-                if(i==0):
+                if(row==0):
                     new_tile.append(current_slice[1])
                     for j in range((tile_len-2)//2):
                         new_tile.insert(0, [0 for k in range(tile_len-2-2*j)])
@@ -331,28 +339,73 @@ def tiling(prime, seq, tile_len):
                 # Check if tile is new/unique
                 key=str(new_tile)
                 unique=tiles.get(key)
+                tile_index=len(tiles)
                 if not unique: # If tile not in tiles dict
-                    tiles[key]=(new_tile,len(tiles)) # Add to tiles
+                    tiles[key]=(new_tile,tile_index) # Add to tiles
+                    tiles_by_index.append([new_tile,(row,col)])
                     growth_marker=slice_count
                     # Also add (row,col) to maps dict, and record location of image tiles
-                    new_tiles[(row*2,col*2)]=True
-                    new_tiles[(row*2-1,col*2+1)]=True
-                    new_tiles[(row*2,col*2+1)]=True
-                    new_tiles[((row*2)+1,(col*2))]=True
-                new_tiles.pop((row,col))
+                    maps[(row,col)]=[tile_index,-1,-1,-1,-1]
+                    new_tiles[(row*2,col*2)]=1 # Left image tile
+                    new_tiles[(row*2-1,col*2+1)]=2 # Upper image tile
+                    new_tiles[(row*2,col*2+1)]=3 # Right image tile
+                    new_tiles[((row*2)+1,(col*2))]=4 # Lower image tile
+                # Compute parent tile co-ordinates
+                image_row=row
+                image_col=col
+                # Adjust co-ordinates (no action for image tile 1's)
+                if(image_tile==2):
+                    image_row += 1
+                    image_col -= 1
+                elif(image_tile==3):
+                    image_col -= 1
+                elif(image_tile==4):
+                    image_row -= 1
+                else: # Error case
+                    if(image_tile!=1):
+                        print("IMAGE MAPPING ERROR")
+                        print("Image tile numer:", image_tile)
+                parent_row=image_row//2
+                parent_col=image_col//2
+                # Update parent tile mapping with image tile index
+                maps[(parent_row, parent_col)][image_tile]=tile_index
+                # Remove completed tile from the dict of unprocessed image tiles
+                new_tiles.pop((row,col)) # Skip to save computation time?
             # Increment row and decrement col here
             row += 1
             col -= 1
-    print("Number of unique tiles", len(tiles)) 
-    print("Number of generated tiles", tiles_gen)
-    return tiles
+    print("Number of unique tiles:", len(tiles))
+    print("Number of generated tiles:", tiles_gen)
+    print("Tiles unmapped (expected = 1 (a 0's tile)):", len(new_tiles)) # We expect 1 unmapped tile, which is a 0 tile, that maps to other 0 tiles
+    if len(new_tiles)>1:
+        for key, val in new_tiles.items():
+            print("Tile", key, "from position", val)
+    print("Number of mappings:",len(maps))
+    print("Ignore first missed mapping, it maps to a 0's tile.")
+    for mapping, images in maps.items():
+        for i in images:
+            if(i==-1):
+                print("MISSED MAPPING")
+                print("Tile:", mapping, "with image indexes:", images)
+                break
+    return tiles, maps, tiles_by_index
+
+# Function to convert the output of tiling to something more useful, with inputs:
+# tiles -> a dictionary containing key = str(tile) and value = (tile, tile_index)
+# maps -> a dictionary containing key = (tile_row, tile_col) and value = [parent_tile_index,
+#         left_image_tile_index, upper_image_tile_index, right_image_tile_index, lower_image_tile_index]
+# tiles_by_index -> a list containing items of form [tile, (tile_row, tile_col)] in tile_index order
+# Convert the combination of information above into whatever format is most useful!
+def convert_tiling(tiles, maps, tiles_by_index):
+    # TODO - change the return below (you can run as-is currently to see the default tiling output)
+    return tiles, maps, tiles_by_index
 
 # Primary testing function
 def main():
     prime_input=3
     tile_length=8
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
-    tiling(prime_input, pap_f,tile_length)
-    #print("Add latest testing steps here")
+    tiling_output = tiling(prime_input, pap_f,tile_length)
+    output = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
 
 main()
