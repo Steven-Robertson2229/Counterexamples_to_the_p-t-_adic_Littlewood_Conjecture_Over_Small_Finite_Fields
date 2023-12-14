@@ -479,13 +479,15 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
 
 # Primary testing function
 def main():
-    prime_input=3
+    prime_input=7
     tile_length=8
+    verify=True
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     tiling_output = tiling(prime_input, pap_f,tile_length)
-    output = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
-    length_check=tiling_output[3]
-    pseudo_number_wall(output[0],output[1],pap_f,prime_input,length_check)
-    return output
-
+    if(verify):
+        output = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
+        length_check=tiling_output[3]
+        pseudo_number_wall(output[0],output[1],pap_f,prime_input,length_check)
+        return output
+    return tiling_output
 main()
