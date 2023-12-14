@@ -368,7 +368,7 @@ def tiling(prime, seq, tile_len):
                 parent_row=image_row//2
                 parent_col=image_col//2
                 # Update parent tile mapping with image tile index
-                maps[(parent_row, parent_col)][image_tile]=tiles[key][1]#tile_index
+                maps[(parent_row, parent_col)][image_tile]=tiles[key][1] # tile_index
                 # Remove completed tile from the dict of unprocessed image tiles
                 new_tiles.pop((row,col)) # Skip to save computation time?
             # Increment row and decrement col here
@@ -380,15 +380,17 @@ def tiling(prime, seq, tile_len):
     if len(new_tiles)>1:
         for key, val in new_tiles.items():
             print("Tile", key, "from position", val)
-    print("Number of mappings:",len(maps))
-    print("Ignore first missed mapping, it maps to a 0's tile.")
+    print("Number of mappings:", len(maps))
+    #print("Ignore first missed mapping, it maps to a 0's tile.")
     for mapping, images in maps.items():
         for i in images:
             if(i==-1):
                 print("MISSED MAPPING")
                 print("Tile:", mapping, "with image indexes:", images)
                 break
-    return tiles, maps, tiles_by_index
+    cell_count=slice_count*tile_len
+    print("Number Wall length (tiles):", slice_count, "and (cells):", cell_count)
+    return tiles, maps, tiles_by_index, cell_count
 
 # Function to convert the output of tiling to something more useful, with inputs:
 # tiles -> a dictionary containing key = str(tile) and value = (tile, tile_index)
@@ -397,9 +399,9 @@ def tiling(prime, seq, tile_len):
 # tiles_by_index -> a list containing items of form [tile, (tile_row, tile_col)] in tile_index order
 # Convert the combination of information above into whatever format is most useful!
 
-#Returns a list of every tile and a list of the image of each tile unnder the mapping
-#The index of the tile is given by its index in the list. For example,
-#The image of tile 3 is item 3 in the maps_by_index list
+# Returns a list of every tile and a list of the images of each tile under the mapping
+# The index of the tile is given by its index in the list. For example,
+# The images of tile 3 is item 3 in the maps_by_index list
 def convert_tiling(tiles, maps, tiles_by_index):
     maps_by_index=[]
     for i in tiles_by_index:
@@ -408,20 +410,29 @@ def convert_tiling(tiles, maps, tiles_by_index):
     maps_by_index[0].append(0)
     return tiles_by_index, maps_by_index
 
-#Generates the 'number wall' using only the substitution rule and
-#checks if it agrees with the real number wall. Does this for every application
-#of the substitution rule
-#Inputs are a list of tiles, a list of their images under the substutituion,
-#the sequence we are generating the number wall for, the prime we are reducing modulo
-#and the number of times the substituition should be applied
-def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,n):
-    tiling=[[1]] #Initial tiling
-    for k in range(n): 
-        new_tiling=[]#generate a new tiling
+# Generates the 'number wall' using only the substitution rule and
+# checks if it agrees with the real number wall. Does this for every application
+# of the substitution rule
+# Inputs are a list of tiles, a list of their images under the substutituion,
+# the sequence we are generating the number wall for, the prime we are reducing modulo
+# and the number of times the substituition should be applied
+def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
+    tiling=[[1]] # Initial tiling
+    verification_multiplier=input_length*6
+    k=0
+    while((2**(k+3))<verification_multiplier):
+        # Reset number wall variables to save memory
+        nw=[]
+        true_nw=[]
+        # Generate a new tiling
+        new_tiling=[]
         for i in range(2*len(tiling[0])):
-            new_tiling.insert(0,['*' for j in range(i+1)]) #create shape of new tiling
-        new_tiling.append(['*' for j in range(2*len(tiling[0])+1)])#Add a dump row as row -1
-        for i in range(len(tiling)):#Fill in new tiling using maps
+            # Create shape of new tiling
+            new_tiling.insert(0,['*' for j in range(i+1)])
+        # Add a dump row as row -1
+        new_tiling.append(['*' for j in range(2*len(tiling[0])+1)])
+        # Fill in new tiling using maps
+        for i in range(len(tiling)):
             for j in range(len(tiling[i])):
                 new_tiling[2*i][2*j]=maps_by_index[tiling[i][j]][0]
                 new_tiling[2*i-1][2*j+1]=maps_by_index[tiling[i][j]][1]
@@ -429,14 +440,17 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,n):
                 new_tiling[2*i+1][2*j]=maps_by_index[tiling[i][j]][3]
         new_tiling.remove(new_tiling[-1])
         tiling=cop.deepcopy(new_tiling)
-        nw=[] #build the number wall
+        # Build the number wall
         tile_len=len(tiles_by_index[0][0])+1
         t2=tile_len//2
-        for i in range((len(new_tiling[0])*tile_len)//2): #number wall shape
+        # Number wall shape
+        for i in range((len(new_tiling[0])*tile_len)//2):
             nw.insert(0,['*' for p in range(2*i+2)])
-        for i in range(tile_len//2 -1): #dump rows for rows -1,-2,-3
+        # Dump rows for rows -1,-2,-3
+        for i in range(tile_len//2 -1):
             nw.append(['*' for p in range(len(new_tiling[0])*tile_len)])
-        for i in range(len(new_tiling)):# fill in nw
+        # Fill in the number wall
+        for i in range(len(new_tiling)):
             for j in range(len(new_tiling[i])):
                 index=new_tiling[i][j]
                 tile=tiles_by_index[index][0]
@@ -446,17 +460,23 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,n):
                     for l in range(tile_len-2-2*m):
                         nw[t2*i-1-m][tile_len*j+l+2*m+2]=tile[t2-2-m][l]
                         nw[t2*i+1+m][tile_len*j+l]=tile[t2+m][l]
-        for i in range(t2-1): #remove dump rows
+         # Remove dump rows
+        for i in range(t2-1):
             nw.remove(nw[-1])
-        true_nw=[[0,0],[1,1,1,1],[seq(0),seq(1)]] #build the actual number wall
+        # Build the true number wall
+        true_nw=[[0,0],[1,1,1,1],[seq(0),seq(1)]]
         for i in range(2, tile_len*len(new_tiling[0])-2):
             true_nw=wall_gen(prime, true_nw, seq(i)%prime)
         true_nw.remove(true_nw[0])
-        if nw!=true_nw: #compare true and pseudo number wall
+        # Compare true and pseudo number wall
+        if nw!=true_nw: 
             print(k)
             break
         else:
             print('pseudo number wall matches true number wall at length = ', 2**(k+3))
+        k += 1
+    print("Verification complete!")
+
 # Primary testing function
 def main():
     prime_input=3
@@ -464,7 +484,8 @@ def main():
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     tiling_output = tiling(prime_input, pap_f,tile_length)
     output = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
-    pseudo_number_wall(output[0],output[1],pap_f,3,100)
+    length_check=tiling_output[3]
+    pseudo_number_wall(output[0],output[1],pap_f,prime_input,length_check)
     return output
 
 main()
