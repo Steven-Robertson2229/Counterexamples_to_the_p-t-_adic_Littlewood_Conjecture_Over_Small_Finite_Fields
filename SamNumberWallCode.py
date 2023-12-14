@@ -418,7 +418,7 @@ def convert_tiling(tiles, maps, tiles_by_index):
 # and the number of times the substituition should be applied
 def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
     tiling=[[1]] # Initial tiling
-    verification_multiplier=input_length*6
+    verification_multiplier=input_length*10
     k=0
     while((2**(k+3))<verification_multiplier):
         # Reset number wall variables to save memory
@@ -473,7 +473,7 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
             print(k)
             break
         else:
-            print('pseudo number wall matches true number wall at length = ', 2**(k+3))
+            print('pseudo number wall matches true number wall at length =', 2**(k+3))
         k += 1
     print("Verification complete!")
 
