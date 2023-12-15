@@ -408,6 +408,7 @@ def convert_tiling(tiles, maps, tiles_by_index):
         maps_by_index.append(maps[i[1]][1:])
         i.remove(i[1])
     maps_by_index[0].append(0)
+    maps_by_index[2][1]=0
     return tiles_by_index, maps_by_index
 
 # Generates the 'number wall' using only the substitution rule and
@@ -418,7 +419,7 @@ def convert_tiling(tiles, maps, tiles_by_index):
 # and the number of times the substituition should be applied
 def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
     tiling=[[1]] # Initial tiling
-    verification_multiplier=input_length*10
+    verification_multiplier=input_length*2
     k=0
     while((2**(k+3))<verification_multiplier):
         # Reset number wall variables to save memory
@@ -477,17 +478,129 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
         k += 1
     print("Verification complete!")
 
+# Finds all four-tuples from our generated mappings 
+def four_tuples(maps):
+    # Build dict of unique images
+    unique_tuples={}
+    for tup1 in maps:
+        key=str(tup1)
+        unique_tuples[key]=tup1
+    # For each mapping, check the unknown tuple combinations for new tuples
+    # Skip first entry, its all zeros
+    for tup in maps[1:]:
+        skip=False
+        # Take care when zero tiles are present
+        if(tup[1]==0):
+            skip=True
+        # Treat four tuple rotated as a square
+        image_tuple=[['*' for i in range(4)] for j in range(4)]
+        entry_image1=maps[tup[0]]
+        entry_image2=maps[tup[1]]
+        entry_image3=maps[tup[2]]
+        entry_image4=maps[tup[3]]
+        # Left image
+        image_tuple[0][0]=entry_image1[0]
+        image_tuple[0][1]=entry_image1[1]
+        image_tuple[1][0]=entry_image1[3]
+        image_tuple[1][1]=entry_image1[2]
+        # Upper image
+        image_tuple[0][2]=entry_image2[0]
+        image_tuple[0][3]=entry_image2[1]
+        image_tuple[1][2]=entry_image2[3]
+        image_tuple[1][3]=entry_image2[2]
+        # Right image
+        image_tuple[2][2]=entry_image3[0]
+        image_tuple[2][3]=entry_image3[1]
+        image_tuple[3][2]=entry_image3[3]
+        image_tuple[3][3]=entry_image3[2]
+        # Lower image
+        image_tuple[2][0]=entry_image4[0]
+        image_tuple[2][1]=entry_image4[1]
+        image_tuple[3][0]=entry_image4[3]
+        image_tuple[3][1]=entry_image4[2]
+        # Search for new tuples
+        new_tuples=[]
+        if not skip:
+            # When zero tiles exist, don't check the upper and right tuples
+            new_tuples.append([image_tuple[0][1],image_tuple[0][2],image_tuple[1][2],image_tuple[1][1]]) # Upper tuple
+            new_tuples.append([image_tuple[1][2],image_tuple[1][3],image_tuple[2][3],image_tuple[2][2]]) # Right tuple
+        new_tuples.append([image_tuple[1][0],image_tuple[1][1],image_tuple[2][1],image_tuple[2][0]]) # Left tuple
+        new_tuples.append([image_tuple[2][1],image_tuple[2][2],image_tuple[3][2],image_tuple[3][1]]) # Bottom tuple
+        new_tuples.append([image_tuple[1][1],image_tuple[1][2],image_tuple[2][2],image_tuple[2][1]]) # Middle tuple
+        # Check each new tuple for uniqueness
+        for new_tup in new_tuples:
+            key=str(new_tup)
+            unique=unique_tuples.get(key)
+            if not unique: # If tuple not in tuples dictionary
+                unique_tuples[key]=new_tup # Add to tuples dictionary
+                maps.append(new_tup)
+    return maps
+
+# TODO
+def verify_tuples(tuples_by_index, tiles_by_index, tiles):
+    tile_len=len(tiles_by_index[0][0])+1
+    #print('boof',tiles_by_index[0][0])
+    for tup in tuples_by_index[1:]:
+        incomplete_nw=[['*' for i in range(2*tile_len)] for j in range(2*tile_len-1)]
+        # Left tile
+        middle=(len(incomplete_nw)-1)//2
+        tile=tiles_by_index[tup[0]][0]
+        tile_it=tile_len//2 -1
+        for i in range(tile_len):
+            incomplete_nw[middle][i]=tile[tile_it][i]
+        for i in range(tile_it):
+            for j in range(tile_len-2-2*i):
+                #print(j,i)
+                incomplete_nw[middle-i-1][1+j+i]=tile[tile_it-1-i][j]
+                incomplete_nw[middle+1+i][1+i+j]=tile[tile_it+1+i][j]
+        
+        #Right tile
+        tile=tiles_by_index[tup[2]][0]
+        for i in range(tile_len):
+            incomplete_nw[middle][i+tile_len]=tile[tile_it][i]
+        for i in range(tile_it):
+            for j in range(tile_len-2-2*i):
+                #print(j,i)
+                incomplete_nw[middle-i-1][1+j+i+tile_len]=tile[tile_it-1-i][j]
+                incomplete_nw[middle+1+i][1+i+j+tile_len]=tile[tile_it+1+i][j]
+        
+        #Upper tile
+        tile=tiles_by_index[tup[1]][0]
+        for i in range(tile_len):
+            incomplete_nw[tile_it][1+i+tile_it]=tile[tile_it][i]
+        for i in range(tile_it):
+            for j in range(tile_len-2-2*i):
+                #print(j,i)
+                incomplete_nw[tile_it-i-1][2+j+i+tile_it]=tile[tile_it-1-i][j]
+                incomplete_nw[tile_it+1+i][2+i+j+tile_it]=tile[tile_it+1+i][j]
+        if tuples_by_index.index(tup)<4:
+            for i in incomplete_nw:
+                print(i)
+            
+        
+# Generates the 4th tile of a micro-number wall, using the three
+# tiles above.
+def nw_from_tuple(incomplete_nw):
+    blarg="BLARG"
+    return blarg
+    
 # Primary testing function
 def main():
-    prime_input=7
+    prime_input=3
     tile_length=8
     verify=True
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
+    # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
     tiling_output = tiling(prime_input, pap_f,tile_length)
     if(verify):
-        output = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
+        # converted_tiling = [tiles_by_index, maps_by_index]
+        converted_tiling = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
         length_check=tiling_output[3]
-        pseudo_number_wall(output[0],output[1],pap_f,prime_input,length_check)
-        return output
+        #pseudo_number_wall(converted_tiling[0],converted_tiling[1],pap_f,prime_input,length_check)
+        unique_tuples=four_tuples(converted_tiling[1])
+        print("Did verify complete successfully?",verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0]))
+        return unique_tuples
     return tiling_output
-main()
+output=main()
+
+
