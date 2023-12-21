@@ -476,7 +476,7 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
         k += 1
     print("Verification complete!")
 
-# Finds all unique four-tuples from our generated mappings
+# Finds all unique four-tuples from our generated mappings.
 def four_tuples(maps):
     # Build dict of unique images
     unique_tuples={}
@@ -535,7 +535,7 @@ def four_tuples(maps):
     return maps
 
 # Uses number wall calculations to generate the lower tile of
-# a four-tuple, and compares to our expected four-tuple's lower tile
+# a four-tuple, and compares to our expected four-tuple's lower tile.
 def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
     tile_len=len(tiles_by_index[0][0])+1
     index=0
@@ -555,8 +555,7 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
                     #print(j,i)
                     incomplete_nw[middle-i-1][1+j+i]=tile[tile_it-1-i][j]
                     incomplete_nw[middle+1+i][1+i+j]=tile[tile_it+1+i][j]
-
-            #Right tile
+            # Right tile
             tile=tiles_by_index[tup[2]][0]
             for i in range(tile_len):
                 incomplete_nw[middle][i+tile_len]=tile[tile_it][i]
@@ -564,8 +563,7 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
                 for j in range(tile_len-2-2*i):
                     incomplete_nw[middle-i-1][1+j+i+tile_len]=tile[tile_it-1-i][j]
                     incomplete_nw[middle+1+i][1+i+j+tile_len]=tile[tile_it+1+i][j]
-
-            #Upper tile
+            # Upper tile
             tile=tiles_by_index[tup[1]][0]
             for i in range(tile_len):
                 incomplete_nw[tile_it][1+i+tile_it]=tile[tile_it][i]
@@ -573,8 +571,9 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
                 for j in range(tile_len-2-2*i):
                     incomplete_nw[tile_it-i-1][2+j+i+tile_it]=tile[tile_it-1-i][j]
                     incomplete_nw[tile_it+1+i][2+i+j+tile_it]=tile[tile_it+1+i][j]
-
+            # Calculate lower tile
             complete_nw=nw_from_tuple(incomplete_nw, prime)
+            # Extract calculated lower tile
             calculated_four_tuple=[complete_nw[tile_len+tile_len//2-1][tile_len//2:tile_len+tile_len//2]]
             for i in range(tile_len//2-1):
                 calculated_four_tuple.insert(0, complete_nw[tile_len+tile_len//2-i-2][tile_len//2+i+1:tile_len+tile_len//2-i-1])
@@ -587,7 +586,8 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
     return [True]
         
 # Generates the 4th tile of a section of number wall
-# using the three tiles above.
+# using the three tiles above. Calls nw_entry function
+# for calculation logic on each cell.
 def nw_from_tuple(incomplete_nw, prime):
     tile_len=len(incomplete_nw[0])//2
     # Top half of tile
@@ -604,7 +604,7 @@ def nw_from_tuple(incomplete_nw, prime):
             incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
     return incomplete_nw
 
-# Calculates number wall entry for a single cell
+# Calculates number wall entry for a single cell.
 # Doesn't currently include full cheat list
 # Potential future improvement?
 def nw_entry(nw, row, col, prime):
@@ -664,7 +664,7 @@ def nw_entry(nw, row, col, prime):
         calc4=(rC*div(D, prime))%prime
         return ((calc1+calc2-calc3)*div(calc4, prime))%prime
     
-# Primary testing function
+# Primary testing function.
 def main():
     # Input variables
     prime_input=3
