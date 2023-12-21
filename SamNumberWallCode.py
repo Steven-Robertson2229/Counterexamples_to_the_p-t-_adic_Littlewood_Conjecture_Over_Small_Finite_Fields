@@ -1,6 +1,4 @@
-#import numpy
-#from Sequences import pfseq1, TM
-#from Number_Walls import numbwall, numbwall2
+import time
 import random as rn
 import copy as cop
 
@@ -478,7 +476,7 @@ def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
         k += 1
     print("Verification complete!")
 
-# Finds all four-tuples from our generated mappings 
+# Finds all unique four-tuples from our generated mappings
 def four_tuples(maps):
     # Build dict of unique images
     unique_tuples={}
@@ -536,69 +534,172 @@ def four_tuples(maps):
                 maps.append(new_tup)
     return maps
 
-# TODO
-def verify_tuples(tuples_by_index, tiles_by_index, tiles):
+# Uses number wall calculations to generate the lower tile of
+# a four-tuple, and compares to our expected four-tuple's lower tile
+def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
     tile_len=len(tiles_by_index[0][0])+1
-    #print('boof',tiles_by_index[0][0])
+    index=0
     for tup in tuples_by_index[1:]:
-        incomplete_nw=[['*' for i in range(2*tile_len)] for j in range(2*tile_len-1)]
-        # Left tile
-        middle=(len(incomplete_nw)-1)//2
-        tile=tiles_by_index[tup[0]][0]
-        tile_it=tile_len//2 -1
-        for i in range(tile_len):
-            incomplete_nw[middle][i]=tile[tile_it][i]
-        for i in range(tile_it):
-            for j in range(tile_len-2-2*i):
-                #print(j,i)
-                incomplete_nw[middle-i-1][1+j+i]=tile[tile_it-1-i][j]
-                incomplete_nw[middle+1+i][1+i+j]=tile[tile_it+1+i][j]
+        if(tup[1]==0):
+            pass
+        else:
+            incomplete_nw=[['*' for i in range(2*tile_len)] for j in range(2*tile_len-1)]
+            # Left tile
+            middle=(len(incomplete_nw)-1)//2
+            tile=tiles_by_index[tup[0]][0]
+            tile_it=tile_len//2 -1
+            for i in range(tile_len):
+                incomplete_nw[middle][i]=tile[tile_it][i]
+            for i in range(tile_it):
+                for j in range(tile_len-2-2*i):
+                    #print(j,i)
+                    incomplete_nw[middle-i-1][1+j+i]=tile[tile_it-1-i][j]
+                    incomplete_nw[middle+1+i][1+i+j]=tile[tile_it+1+i][j]
+
+            #Right tile
+            tile=tiles_by_index[tup[2]][0]
+            for i in range(tile_len):
+                incomplete_nw[middle][i+tile_len]=tile[tile_it][i]
+            for i in range(tile_it):
+                for j in range(tile_len-2-2*i):
+                    incomplete_nw[middle-i-1][1+j+i+tile_len]=tile[tile_it-1-i][j]
+                    incomplete_nw[middle+1+i][1+i+j+tile_len]=tile[tile_it+1+i][j]
+
+            #Upper tile
+            tile=tiles_by_index[tup[1]][0]
+            for i in range(tile_len):
+                incomplete_nw[tile_it][1+i+tile_it]=tile[tile_it][i]
+            for i in range(tile_it):
+                for j in range(tile_len-2-2*i):
+                    incomplete_nw[tile_it-i-1][2+j+i+tile_it]=tile[tile_it-1-i][j]
+                    incomplete_nw[tile_it+1+i][2+i+j+tile_it]=tile[tile_it+1+i][j]
+
+            complete_nw=nw_from_tuple(incomplete_nw, prime)
+            calculated_four_tuple=[complete_nw[tile_len+tile_len//2-1][tile_len//2:tile_len+tile_len//2]]
+            for i in range(tile_len//2-1):
+                calculated_four_tuple.insert(0, complete_nw[tile_len+tile_len//2-i-2][tile_len//2+i+1:tile_len+tile_len//2-i-1])
+                calculated_four_tuple.append(complete_nw[tile_len+tile_len//2+i][tile_len//2+i+1:tile_len+tile_len//2-i-1])
+            expected_tuple=tiles_by_index[tup[3]][0]
+            if (expected_tuple!=calculated_four_tuple):
+                # Mismatch between computed four tuple and expected four tuple
+                return [False, expected_tuple, calculated_four_tuple]
+        index += 1
+    return [True]
         
-        #Right tile
-        tile=tiles_by_index[tup[2]][0]
-        for i in range(tile_len):
-            incomplete_nw[middle][i+tile_len]=tile[tile_it][i]
-        for i in range(tile_it):
-            for j in range(tile_len-2-2*i):
-                #print(j,i)
-                incomplete_nw[middle-i-1][1+j+i+tile_len]=tile[tile_it-1-i][j]
-                incomplete_nw[middle+1+i][1+i+j+tile_len]=tile[tile_it+1+i][j]
-        
-        #Upper tile
-        tile=tiles_by_index[tup[1]][0]
-        for i in range(tile_len):
-            incomplete_nw[tile_it][1+i+tile_it]=tile[tile_it][i]
-        for i in range(tile_it):
-            for j in range(tile_len-2-2*i):
-                #print(j,i)
-                incomplete_nw[tile_it-i-1][2+j+i+tile_it]=tile[tile_it-1-i][j]
-                incomplete_nw[tile_it+1+i][2+i+j+tile_it]=tile[tile_it+1+i][j]
-        if tuples_by_index.index(tup)<4:
-            for i in incomplete_nw:
-                print(i)
-            
-        
-# Generates the 4th tile of a micro-number wall, using the three
-# tiles above.
-def nw_from_tuple(incomplete_nw):
-    blarg="BLARG"
-    return blarg
+# Generates the 4th tile of a section of number wall
+# using the three tiles above.
+def nw_from_tuple(incomplete_nw, prime):
+    tile_len=len(incomplete_nw[0])//2
+    # Top half of tile
+    for i in range(1, tile_len//2+1):
+        for j in range(2*i):
+            row=tile_len+i-1
+            col=tile_len-i+j
+            incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
+    # Bottom half of tile
+    for i in range(1, tile_len//2):
+        for j in range(tile_len-2*i):
+            row=tile_len+tile_len//2+i-1
+            col=tile_len//2+j+i
+            incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
+    return incomplete_nw
+
+# Calculates number wall entry for a single cell
+# Doesn't currently include full cheat list
+# Potential future improvement?
+def nw_entry(nw, row, col, prime):
+    # Case zero
+    if(nw[row-1][col]==0 and nw[row][col-1]==0):
+        return 0
+    # Case 1
+    elif(nw[row-2][col]!=0):
+        result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*div(nw[row-2][col], prime))%prime
+        return result
+    # Case 2
+    elif(nw[row-2][col]==0 and nw[row-1][col]==0):
+        current=0
+        diagB=0
+        while(current==0):
+           diagB += 1
+           current=nw[row-diagB][col-diagB]
+        B=current
+        current=0
+        diagA=0
+        while(current==0):
+            diagA += 1
+            current=nw[row-diagB-diagA][col-diagB+diagA]
+        A=current
+        C=nw[row-diagA][col+diagA]
+        length=diagA+diagB-1
+        k=diagA
+        return ((((-1)**(length*k))*B*C)*div(A, prime))%prime
+    # Case 3
+    else:
+        current=0
+        diagB=0
+        while(current==0):
+           diagB += 1
+           current=nw[row-1-diagB][col-diagB]
+        B=current
+        F=nw[row-1-diagB][col-1-diagB]
+        rB=(B*div(nw[row-2-diagB][col-diagB],prime))%prime
+        current=0
+        diagA=0
+        while(current==0):
+            diagA += 1
+            current=nw[row-1-diagB-diagA][col-diagB+diagA]
+        A=current
+        E=nw[row-2-diagB-diagA][col-diagB+diagA]
+        rA=(A*div(nw[row-1-diagB-diagA][col-1-diagB+diagA], prime))%prime
+        C=nw[row-1-diagA][col+diagA]
+        G=nw[row-1-diagA][col+diagA+1]
+        rC=(C*div(nw[row-1-diagA+1][col+diagA], prime))%prime
+        length=diagA+diagB-1
+        k=diagA
+        D=nw[row-1][col]
+        rD=(D*div(nw[row-1][col-1], prime))%prime
+        calc1=(rB*E*div(A, prime))%prime
+        calc2=(((-1)**k)*(rA*F*div(B, prime)))%prime
+        calc3=(((-1)**k)*(rD*G*div(C, prime)))%prime
+        calc4=(rC*div(D, prime))%prime
+        return ((calc1+calc2-calc3)*div(calc4, prime))%prime
     
 # Primary testing function
 def main():
+    # Input variables
     prime_input=3
     tile_length=8
-    verify=True
+    # Naive tiling verify
+    bad_verify=False
+    # Official proof tiling verify
+    true_verify=True
+    start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
     tiling_output = tiling(prime_input, pap_f,tile_length)
-    if(verify):
-        # converted_tiling = [tiles_by_index, maps_by_index]
-        converted_tiling = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
-        length_check=tiling_output[3]
-        #pseudo_number_wall(converted_tiling[0],converted_tiling[1],pap_f,prime_input,length_check)
+    tiling_time=time.time()
+    print("Tiling time =", tiling_time-start)
+    # converted_tiling = [tiles_by_index, maps_by_index]
+    converted_tiling = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
+    length_check=tiling_output[3]
+    if(bad_verify):
+        pseudo_number_wall(converted_tiling[0],converted_tiling[1],pap_f,prime_input,length_check)
+    if(true_verify):
+        tuple_start=time.time()
         unique_tuples=four_tuples(converted_tiling[1])
-        print("Did verify complete successfully?",verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0]))
+        print('Number of 4-tuples = ',len(unique_tuples))
+        tuple_end=time.time()
+        print("Tuple time =", tuple_end-tuple_start)
+        verify_start=time.time()
+        proof=verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0], prime_input)
+        verify_end=time.time()
+        print("Proof result =", proof[0])
+        if(proof[0]==False):
+            print("Expected", proof[1])
+            print("Calculated",proof[2])
+        print("Verify time =", verify_end-verify_start)
+        end=time.time()
+        print("Full time =",end-start)
         return unique_tuples
     return tiling_output
 output=main()
