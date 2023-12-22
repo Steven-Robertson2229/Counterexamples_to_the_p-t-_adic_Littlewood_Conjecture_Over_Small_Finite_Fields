@@ -417,6 +417,7 @@ def convert_tiling(tiles, maps, tiles_by_index):
 # and the number of times the substituition should be applied
 def pseudo_number_wall(tiles_by_index,maps_by_index,seq,prime,input_length):
     tiling=[[1]] # Initial tiling
+    # Check against a number wall double the size used to generate the substitution rules
     verification_multiplier=input_length*2
     k=0
     while((2**(k+3))<verification_multiplier):
@@ -552,7 +553,6 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
                 incomplete_nw[middle][i]=tile[tile_it][i]
             for i in range(tile_it):
                 for j in range(tile_len-2-2*i):
-                    #print(j,i)
                     incomplete_nw[middle-i-1][1+j+i]=tile[tile_it-1-i][j]
                     incomplete_nw[middle+1+i][1+i+j]=tile[tile_it+1+i][j]
             # Right tile
@@ -657,7 +657,7 @@ def nw_entry(nw, row, col, prime):
         length=diagA+diagB-1
         k=diagA
         D=nw[row-1][col]
-        rD=(D*div(nw[row-1][col-1], prime))%prime
+        rD=(D*div(nw[row-1][col+1], prime))%prime
         calc1=(rB*E*div(A, prime))%prime
         calc2=(((-1)**k)*(rA*F*div(B, prime)))%prime
         calc3=(((-1)**k)*(rD*G*div(C, prime)))%prime
@@ -676,30 +676,30 @@ def main():
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
-    tiling_output = tiling(prime_input, pap_f,tile_length)
+    tiling_output = tiling(prime_input, pap_f, tile_length)
     tiling_time=time.time()
-    print("Tiling time =", tiling_time-start)
+    print("- Tiling time =", tiling_time-start)
     # converted_tiling = [tiles_by_index, maps_by_index]
-    converted_tiling = convert_tiling(tiling_output[0],tiling_output[1],tiling_output[2])
-    length_check=tiling_output[3]
+    converted_tiling = convert_tiling(tiling_output[0], tiling_output[1], tiling_output[2])
     if(bad_verify):
-        pseudo_number_wall(converted_tiling[0],converted_tiling[1],pap_f,prime_input,length_check)
+        length_check=tiling_output[3]
+        pseudo_number_wall(converted_tiling[0], converted_tiling[1], pap_f, prime_input, length_check)
     if(true_verify):
         tuple_start=time.time()
         unique_tuples=four_tuples(converted_tiling[1])
-        print('Number of 4-tuples = ',len(unique_tuples))
+        print('Number of four-tuples =', len(unique_tuples))
         tuple_end=time.time()
-        print("Tuple time =", tuple_end-tuple_start)
+        print("- Tuple time =", tuple_end-tuple_start)
         verify_start=time.time()
         proof=verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0], prime_input)
         verify_end=time.time()
         print("Proof result =", proof[0])
         if(proof[0]==False):
-            print("Expected", proof[1])
-            print("Calculated",proof[2])
-        print("Verify time =", verify_end-verify_start)
+            print("Expected:", proof[1])
+            print("Calculated:", proof[2])
+        print("- Verify time =", verify_end-verify_start)
         end=time.time()
-        print("Full time =",end-start)
+        print("- Full time =",end-start)
         return unique_tuples
     return tiling_output
 output=main()

@@ -5,15 +5,24 @@ the Paper Folding sequence, looking to find a complete set of tiling for mod 7, 
 ## Quickstart Testing
 TODO
 
-## Function Overview
+## Function Overviews
 TODO
+
+### Pseudo Number Wall Function
+This is a non-mathematical 'proof' of the substitution rules found in the
+Tiling function being correct and true. We generate a 'true' number wall using
+the regular calculations, and an 'expected' number wall using our pre-calculated
+tile substitution rules, and compare the two. The walls are both generated slice by slice.
+We expect this function to fail for larger primes, as the length of number wall used to
+discover all of the unique tiles and substitution rules becomes too large to generate number
+walls longer than itself to fully verify the rules.
 
 ## Expected Outputs
 Below is a list of the expected outputs from core functions for common/expected
 input parameters. This will allow you to quickly verify that the code has run correctly,
 which is useful when altering functionality or improving computational complexity.
 
-TODO - add more
+All input and time to process values are based on our V3.0 functions.
 
 ### Tiling Function
 Input:
@@ -22,6 +31,7 @@ Input:
 - tile_length=8
 
 Output= **211 unique tiles** after approx 200 slices, and **837 total tiles processed (out of 21735)**
+Time to process = approx 1 second
 
 Input:
 - prime_input=7
@@ -30,6 +40,48 @@ Input:
 
 Output= **302,835 unique tiles** after approx 15,000 slices (stabilising at 7500 slices)
 and **1,211,333 total tiles processed (out of 112,147,775)**
+Time to process = approx 5,042 seconds
+
+Input:
+- prime_input=11
+- sequence=paper_folding_seq (pap_f)
+- tile_length=8
+
+Output= **7,864,003 unique tiles** after approx 92,500 slices (stabilising at ?? slices)
+and **?? total tiles processed (out of ???)**
+Time to process = approx 7 days
+
+### Four Tuples Function
+Input:
+- list of unique tile mappings generated from **prime 3**
+
+Output= **681 unique four-tuples**
+Time to process = approx 0 seconds
+
+Input:
+- list of unique tile mappings generated from **prime 7**
+
+Output= **1,575,729 unique four-tuples**
+Time to process = approx 5 seconds
+
+### Verify Tuples Function
+Input:
+- list of unique tile mappings generated from **prime 3**, including additional entries from four_tuples()
+- list of unique tiles generated from **prime 3**
+- dictionary of unique tiles generated from **prime 3**
+- prime_input=3
+
+Output= TRUE
+Time to process = approx 0 seconds
+
+Input:
+- list of unique tile mappings generated from **prime 7**, including additional entries from four_tuples()
+- list of unique tiles generated from **prime 7**
+- dictionary of unique tiles generated from **prime 7**
+- prime_input=3
+
+Output= TRUE
+Time to process = approx 86 seconds
 
 ## External links
 You can find several papers discussing the background to this work below:
