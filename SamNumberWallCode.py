@@ -540,7 +540,13 @@ def four_tuples(maps):
 def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
     tile_len=len(tiles_by_index[0][0])+1
     index=0
+    tuples_num=len(tuples_by_index)//4
+    print_helper=1
     for tup in tuples_by_index[1:]:
+        # Add print block for progress
+        if(index==(tuples_num*print_helper)):
+            print("Verification process at ", 25*print_helper,"% complete!")
+            print_helper += 1
         if(tup[1]==0):
             pass
         else:
