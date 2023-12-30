@@ -374,12 +374,16 @@ def tiling(prime, seq, tile_len):
             col -= 1
     print("Number of unique tiles:", len(tiles))
     print("Number of generated tiles:", tiles_gen)
-    print("Tiles unmapped (expected = 1 (a 0's tile)):", len(new_tiles)) # We expect 1 unmapped tile, which is a 0 tile, that maps to other 0 tiles
+    final_key=(0,1)
+    top_row_zero_mapping=maps.get(final_key) # We expect 1 unmapped tile, which is a zero tile that maps to other zero tiles
+    top_row_zero_mapping[2]=0 # We correct this to remove the 'known unmapped tile', leaving only true unmapped tiles
+    maps[(final_key)]=top_row_zero_mapping
+    new_tiles.pop((-1,3)) # Finally we remove that tile from the list of unprocessed tiles
+    print("Tiles unmapped (expected=0):", len(new_tiles))
     if len(new_tiles)>1:
         for key, val in new_tiles.items():
             print("Tile", key, "from position", val)
-    print("Number of mappings:", len(maps))
-    #print("Ignore first missed mapping, it maps to a 0's tile.")
+    print("Number of unique mappings:", len(maps))
     for mapping, images in maps.items():
         for i in images:
             if(i==-1):
@@ -693,7 +697,7 @@ def main():
     if(true_verify):
         tuple_start=time.time()
         unique_tuples=four_tuples(converted_tiling[1])
-        print('Number of four-tuples =', len(unique_tuples))
+        print('Number of unique four-tuples =', len(unique_tuples))
         tuple_end=time.time()
         print("- Tuple time =", tuple_end-tuple_start)
         verify_start=time.time()

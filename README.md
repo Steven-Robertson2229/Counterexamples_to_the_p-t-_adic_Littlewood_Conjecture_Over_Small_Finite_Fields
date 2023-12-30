@@ -47,7 +47,7 @@ Input:
 - sequence=paper_folding_seq (pap_f)
 - tile_length=8
 
-Output= **7,864,003 unique tiles** after approx 92,500 slices (stabilising at ?? slices)
+Output= **7,864,003 unique tiles** after approx 184,200 slices (stabilising at 92,100 slices)
 and **?? total tiles processed (out of ???)**
 Time to process = approx 7 days
 
