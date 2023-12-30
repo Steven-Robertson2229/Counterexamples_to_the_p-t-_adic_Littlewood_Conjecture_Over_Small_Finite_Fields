@@ -5,7 +5,7 @@ import copy as cop
 def ratio(X, Y, prime):
    return (X*div(Y, prime)) % prime
 
-# Note: this only works with prime 2, 3, 5, 7, and 11
+# Note: this only works with prime 2, 3, 5, 7, 11, and 19
 def div(num, prime):
     num=num%prime
     if prime==2:
@@ -13,7 +13,7 @@ def div(num, prime):
     elif prime==3:
         if num==1:
             return 1
-        else: # num==2
+        else: # num==2:
             return 2
     elif prime==5:
         if num==1:
@@ -22,7 +22,7 @@ def div(num, prime):
             return 3
         elif num==3:
             return 2
-        else: # num==4
+        else: # num==4:
             return 4
     elif prime==7:
         if num==1:
@@ -35,9 +35,9 @@ def div(num, prime):
             return 2
         elif num==5:
             return 3
-        else: # num==6
+        else: # num==6:
             return 6
-    else: # prime==11
+    elif prime==11:
         if num==1:
             return 1
         elif num==2:
@@ -56,8 +56,45 @@ def div(num, prime):
             return 7
         elif num==9:
             return 5
-        else: # num==10
+        else: # num==10:
             return 10
+    else: # prime==19:
+        if num==1:
+            return 1
+        elif num==2:
+            return 10
+        elif num==3:
+            return 13
+        elif num==4:
+            return 5
+        elif num==5:
+            return 4
+        elif num==6:
+            return 16
+        elif num==7:
+            return 11
+        elif num==8:
+            return 12
+        elif num==9:
+            return 17
+        elif num==10:
+            return 2
+        elif num==11:
+            return 7
+        elif num==12:
+            return 8
+        elif num==13:
+            return 3
+        elif num==14:
+            return 15
+        elif num==15:
+            return 14
+        elif num==16:
+            return 6
+        elif num==17:
+            return 9
+        else: # num==18:
+            return 18
 
     # otherwise it was a bad input
     print("ERROR - bad input to div function.")
@@ -249,6 +286,22 @@ def pap_f(n):
         while n%2 == 0:
             n = n / 2
     return int(((n-1)/2)%2)
+
+# Function returns the nth element of the adapted paper folding sequence (for F5)
+def pap_f5(n):
+    n += 1
+    if n == 0:
+        return 0
+    while n-(n//2)*2 == 0:
+        n=n//2
+    if int(n)%8 == 1:
+        return 0
+    elif int(n)%8 == 3:
+        return 1
+    elif int(n)%8 == 5:
+        return 2
+    else:
+        return 3
 
 # Function returns the nth element of the pagoda sequence
 def pagoda(n):
@@ -677,8 +730,9 @@ def nw_entry(nw, row, col, prime):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=3
-    tile_length=8
+    prime_input=3 # Currently tested with 3, 5, 7, and 11
+    tile_length=8 # Currently tested with 8 and 16 length
+    sequence=pap_f # Currently pap_f or pap_f5
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
@@ -686,14 +740,14 @@ def main():
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
-    tiling_output = tiling(prime_input, pap_f, tile_length)
+    tiling_output = tiling(prime_input, sequence, tile_length)
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)
     # converted_tiling = [tiles_by_index, maps_by_index]
     converted_tiling = convert_tiling(tiling_output[0], tiling_output[1], tiling_output[2])
     if(bad_verify):
         length_check=tiling_output[3]
-        pseudo_number_wall(converted_tiling[0], converted_tiling[1], pap_f, prime_input, length_check)
+        pseudo_number_wall(converted_tiling[0], converted_tiling[1], sequence, prime_input, length_check)
     if(true_verify):
         tuple_start=time.time()
         unique_tuples=four_tuples(converted_tiling[1])
