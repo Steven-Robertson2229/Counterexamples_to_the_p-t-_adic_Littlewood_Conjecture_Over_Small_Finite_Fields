@@ -396,9 +396,12 @@ def tiling(prime, seq, tile_len):
                     tiles_by_index.append([new_tile,(row,col)])
                     growth_marker=slice_count
                     # Also add (row,col) to maps dict, and record location of image tiles
-                    maps[(row,col)]=[tile_index,-1,-1,-1,-1]
+                    if(row==0): # If we're on the top row, the upper image tile will be a zero tile
+                        maps[(row,col)]=[tile_index,-1,0,-1,-1]
+                    else:
+                        maps[(row,col)]=[tile_index,-1,-1,-1,-1]
+                        new_tiles[(row*2-1,col*2+1)]=2 # Upper image tile
                     new_tiles[(row*2,col*2)]=1 # Left image tile
-                    new_tiles[(row*2-1,col*2+1)]=2 # Upper image tile
                     new_tiles[(row*2,col*2+1)]=3 # Right image tile
                     new_tiles[((row*2)+1,(col*2))]=4 # Lower image tile
                 # Compute parent tile co-ordinates
@@ -427,11 +430,6 @@ def tiling(prime, seq, tile_len):
             col -= 1
     print("Number of unique tiles:", len(tiles))
     print("Number of generated tiles:", tiles_gen)
-    final_key=(0,1)
-    top_row_zero_mapping=maps.get(final_key) # We expect 1 unmapped tile, which is a zero tile that maps to other zero tiles
-    top_row_zero_mapping[2]=0 # We correct this to remove the 'known unmapped tile', leaving only true unmapped tiles
-    maps[(final_key)]=top_row_zero_mapping
-    new_tiles.pop((-1,3)) # Finally we remove that tile from the list of unprocessed tiles
     print("Tiles unmapped (expected=0):", len(new_tiles))
     if len(new_tiles)>1:
         for key, val in new_tiles.items():
@@ -730,9 +728,9 @@ def nw_entry(nw, row, col, prime):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=3 # Currently tested with 3, 5, 7, and 11
-    tile_length=8 # Currently tested with 8 and 16 length
-    sequence=pap_f # Currently pap_f or pap_f5
+    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    tile_length=16 # Currently tested with 8 and 16 length
+    sequence=pagoda # Currently pap_f, pap_f5, or pagoda
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
