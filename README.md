@@ -1,6 +1,6 @@
 # Collab_Number_Wall
 This project is looking to investigate generating Number Walls primarily using
-the Paper Folding sequence, looking to find a complete set of tiling for mod 7, and more.
+the Paper Folding sequence, looking to find a complete set of tiling for mod 7, mod 11, and more.
 
 ## Quickstart Testing
 TODO
@@ -37,6 +37,14 @@ Output= **211 unique tiles** after approx 200 slices, and **837 total tiles proc
 Time to process = approx 1 second
 
 Input:
+- prime_input=3
+- sequence=pagoda_seq (pagoda)
+- tile_length=16
+
+Output= **197 unique tiles** after approx 184 slices, and **779 total tiles processed (out of ??)**
+Time to process = approx 3 seconds
+
+Input:
 - prime_input=5
 - sequence=adapted_paper_folding_seq (pap_f5)
 - tile_length=16
@@ -69,6 +77,12 @@ Input (*paper folding sequence*):
 Output= **681 unique four-tuples**
 Time to process = approx 0 seconds
 
+Input (*pagoda sequence*):
+- list of unique tile mappings generated from **prime 3**
+
+Output= **573 unique four-tuples**
+Time to process = approx 0 seconds
+
 Input (*adapted paper folding sequence*):
 - list of unique tile mappings generated from **prime 5**
 
@@ -89,6 +103,15 @@ Time to process = approx 130 seconds
 
 ### Verify Tuples Function
 Input (*paper folding sequence*):
+- list of unique tile mappings generated from **prime 3**, including additional entries from four_tuples()
+- list of unique tiles generated from **prime 3**
+- dictionary of unique tiles generated from **prime 3**
+- prime_input=3
+
+Output= TRUE
+Time to process = approx 0 seconds
+
+Input (*pagoda sequence*):
 - list of unique tile mappings generated from **prime 3**, including additional entries from four_tuples()
 - list of unique tiles generated from **prime 3**
 - dictionary of unique tiles generated from **prime 3**

@@ -600,7 +600,7 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
     for tup in tuples_by_index[1:]:
         # Add print block for progress
         if(index==(tuples_num*print_helper)):
-            print("Verification process at ", 25*print_helper,"% complete!")
+            print("Verification process at", 25*print_helper,"% complete!")
             print_helper += 1
         if(tup[1]==0):
             pass
@@ -729,8 +729,8 @@ def nw_entry(nw, row, col, prime):
 def main():
     # Input variables
     prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
-    tile_length=16 # Currently tested with 8 and 16 length
-    sequence=pagoda # Currently pap_f, pap_f5, or pagoda
+    tile_length=8 # Currently tested with 8 and 16 length
+    sequence=pap_f # Currently pap_f, pap_f5, or pagoda
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
