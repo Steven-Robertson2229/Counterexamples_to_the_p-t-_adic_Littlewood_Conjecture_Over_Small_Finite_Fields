@@ -2,6 +2,9 @@ import time
 import random as rn
 import copy as cop
 
+# This python file is the Version 3 of the Number Wall tiling functionality.
+# It comes with the CommonFunctions.py code built-in.
+
 def ratio(X, Y, prime):
    return (X*div(Y, prime)) % prime
 
