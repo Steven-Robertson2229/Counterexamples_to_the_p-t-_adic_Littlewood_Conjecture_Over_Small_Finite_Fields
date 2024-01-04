@@ -310,12 +310,8 @@ def pap_f5(n):
 def pagoda(n):
     return pap_f(n+1) - pap_f(n-1)
 
-# Todo:
-    # - Add logic into tiling loop to only collate the tile if it is in the 
-    #   new tile dict (otherwise it is simply already a tile we have!)
-    # - (In progress) Add logic to generate tile->image mapping dict
 # Function records all unique tiles and tile->image mappings for a
-# given tile length, prime, and Number Wall sequence
+# Number Wall using a given tile length, prime, and sequence.
 # Note: This function is designed around the centre of tiles on row 0
 # being the input row 1 above the input sequence
 def tiling(prime, seq, tile_len):

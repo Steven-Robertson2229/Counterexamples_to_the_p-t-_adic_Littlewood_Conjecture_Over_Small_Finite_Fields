@@ -4,12 +4,16 @@
 # formed from a 'diamond-shaped' list of lists.
 # Each tile holds its integer ID, unique nested list of numbers (value),
 # and original Number Wall location co-ordiates tuple (?).
+# The Tile class also holds a static variable of the tile length,
+# which is the length of the middle line of the tile value.
+# This static variable describes the length of all tiles in the
+# current computation under evaluation.
 
-# We could also store the tile length if desired,
-# although this can be computed at run-time, and is
-# not expected to be different for each tile.
+# We could also store additional information such as the parent tile index of
+# each tile, but it is unclear if that would be useful at this point in time.
 
 class Tile:
+    tile_length = 0
     def __init__(self, id, value, coord):
         self.id = id
         self.value = value
