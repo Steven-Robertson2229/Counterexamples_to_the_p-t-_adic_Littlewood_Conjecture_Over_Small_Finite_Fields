@@ -9,8 +9,8 @@ TODO
 TODO
 
 ### Pseudo Number Wall Function
-This is a non-mathematical 'proof' of the substitution rules found in the
-Tiling function being correct and true. We generate a 'true' number wall using
+This is verification of the substitution rules found in the
+Tiling function being correct and true for a finite portion of the number wall. We generate a 'true' number wall using
 the regular calculations, and an 'expected' number wall using our pre-calculated
 tile substitution rules, and compare the two. The walls are both generated slice by slice.
 We expect this function to fail for larger primes, as the length of number wall used to
