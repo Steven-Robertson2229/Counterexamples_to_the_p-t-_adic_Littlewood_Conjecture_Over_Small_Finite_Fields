@@ -22,7 +22,7 @@ Version 3 also includes several minor improvements to the Number Wall generation
 
 Version 3 has been proven capable of computing a complete set of substitution rules for the Paper Folding sequence up to F11.
 
-## Version 3.1
+## Version 3 Plus
 TODO - write up (if this version is skipped, just describe outline of idea)
 
 ## Version 4

@@ -338,7 +338,7 @@ def tiling(prime, seq, tile_len):
     tiles[key0]=(tile0, 0)
     tiles_by_index.append([tile0,(-1,-1)])
     # Map structure - key=location; value=(parent tile index, image tile a index, ...)
-    maps[(-1,-1)]=[tiles[key0][1],tiles[key0][1],tiles[key0][1],tiles[key0][1]]
+    maps[(-1,-1)]=[tiles[key0][1],tiles[key0][1],tiles[key0][1],tiles[key0][1],tiles[key0][1]]
     # Hard code first tile
     tile1=cop.deepcopy(prev_wall)
     for i in range(((tile_len-2)//2)-1):
@@ -423,7 +423,7 @@ def tiling(prime, seq, tile_len):
                 # Update parent tile mapping with image tile index
                 maps[(parent_row, parent_col)][image_tile]=tiles[key][1] # tile_index
                 # Remove completed tile from the dict of unprocessed image tiles
-                new_tiles.pop((row,col)) # Skip to save computation time?
+                new_tiles.pop((row,col))
             # Increment row and decrement col here
             row += 1
             col -= 1
