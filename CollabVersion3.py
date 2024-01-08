@@ -668,14 +668,14 @@ def nw_from_tuple(incomplete_nw, prime):
 # Doesn't currently include full cheat list
 # Potential future improvement?
 def nw_entry(nw, row, col, prime):
-    # Case zero
+    # Case zero - inside window
     if(nw[row-1][col]==0 and nw[row][col-1]==0):
         return 0
-    # Case 1
+    # Case 1 - non-window (standard wall entry)
     elif(nw[row-2][col]!=0):
         result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*div(nw[row-2][col], prime))%prime
         return result
-    # Case 2
+    # Case 2 - inner window frame
     elif(nw[row-2][col]==0 and nw[row-1][col]==0):
         current=0
         diagB=0
@@ -693,7 +693,7 @@ def nw_entry(nw, row, col, prime):
         length=diagA+diagB-1
         k=diagA
         return ((((-1)**(length*k))*B*C)*div(A, prime))%prime
-    # Case 3
+    # Case 3 - outer window frame
     else:
         current=0
         diagB=0
@@ -727,7 +727,7 @@ def nw_entry(nw, row, col, prime):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    prime_input=7 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
     tile_length=8 # Currently tested with 8 and 16 length
     sequence=pap_f # Currently pap_f, pap_f5, or pagoda
     # Naive tiling verify
@@ -763,6 +763,6 @@ def main():
         print("- Full time =",end-start)
         return unique_tuples
     return tiling_output
-output=main()
+#output=main()
 
 

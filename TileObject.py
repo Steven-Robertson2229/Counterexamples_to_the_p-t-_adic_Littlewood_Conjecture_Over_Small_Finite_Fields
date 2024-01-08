@@ -15,33 +15,31 @@ import TileRefObject as tile_ref
 
 class Tile:
     tile_length = 0
-    def __init__(self, id, value, coord):
+    def __init__(self, id: int, value: list, coord: tuple):
         self.id = id
-        self.value = value
-        self.location = coord
-        self.left_image = tile_ref.TileRef(self, -1)
-        self.upper_image = tile_ref.TileRef(self, -1)
-        self.right_image = tile_ref.TileRef(self, -1)
-        self.lower_image = tile_ref.TileRef(self, -1)
-
-    # Specific constructor for zeroth tile
-    # For some reason tile_length is undefined, so we pass it in
-    def __init__(self, tile_len):
-        self.id = 0
-        self.value = []
-        self.value.append([0 for i in range(tile_len)])
-        for i in range((tile_len-2)//2):
-            self.value.insert(0, [0 for j in range((tile_len-2)-(2*i))])
-            self.value.append([0 for j in range((tile_len-2)-(2*i))])
-        self.location = (-1, -1)
-        zeroRef=tile_ref.TileRef(self, self)
-        self.left_image = zeroRef
-        self.upper_image = zeroRef
-        self.right_image = zeroRef
-        self.lower_image = zeroRef
+        # Specific constructor for zeroth tile
+        if id==0:
+            self.value = []
+            self.value.append([0 for i in range(Tile.tile_length)])
+            for i in range((Tile.tile_length-2)//2):
+                self.value.insert(0, [0 for j in range((Tile.tile_length-2)-(2*i))])
+                self.value.append([0 for j in range((Tile.tile_length-2)-(2*i))])
+            self.location = (-1, -1)
+            zeroRef=tile_ref.TileRef(self)
+            self.left_image = zeroRef
+            self.upper_image = zeroRef
+            self.right_image = zeroRef
+            self.lower_image = zeroRef
+        else:
+            self.value = value
+            self.location = coord
+            self.left_image = tile_ref.TileRef(-1)
+            self.upper_image = tile_ref.TileRef(-1)
+            self.right_image = tile_ref.TileRef(-1)
+            self.lower_image = tile_ref.TileRef(-1)
 
     # We pass in the image tile ref to this function to save 'figuring out' which image variable to change
-    def update_mapping (image_tile_ref: tile_ref.TileRef, image_tile):
+    def update_mapping (self, image_tile_ref: tile_ref.TileRef, image_tile):
         image_tile_ref.image_tile = image_tile
 
     def __str__(self):
@@ -66,4 +64,4 @@ def main():
     ref_test.append(test.upper_image)
     print(ref_test[1]) # Proves concept still works with unmapped image tiles in a TileRef
 
-main()
+#main()

@@ -3,6 +3,7 @@ import random as rn
 import copy as cop
 import CommonFunctions as funct
 import TileObject as tile
+import TileRefObject as tile_ref
 import CollabVersion3 as source
 
 def tiling_adv(prime, seq):
@@ -25,23 +26,12 @@ def tiling_adv(prime, seq):
     row=0
     # Hard code zero'th tile
     # Instantiate zero'th Tile object
-    tile0=tile.Tile(tile_len)
-    #tile0val=[]
-    #tile0val.append([0 for i in range(tile_len)])
-    #for i in range(((tile_len-2)//2)):
-    #    tile0val.insert(0, [0 for j in range((tile_len-2)-(2*i))])
-    #    tile0val.append([0 for j in range((tile_len-2)-(2*i))])
+    tile0=tile.Tile(0, [], (-999, -999)) # The list and tuple are ignored here
     key0=str(tile0.value)
     # Add to tiles dict and ordered list
     tiles[key0]=(tile0)
     tiles_by_index.append(tile0)
     # Update mapping within Tile object - all images are other tile0's
-    #tile0.update_mapping(tile0.left_image, tile0)
-    #tile0.update_mapping(tile0.upper_image, tile0)
-    #tile0.update_mapping(tile0.right_image, tile0)
-    #tile0.update_mapping(tile0.lower_image, tile0)
-    # Map structure - key=location; value=(parent Tile, image Tile a, image Tile b, ...)
-    #maps[(-1,-1)]=[tile0,tile0,tile0,tile0,tile0]
     # Hard code first tile
     tile1val=cop.deepcopy(prev_wall)
     for i in range(((tile_len-2)//2)-1):
@@ -53,10 +43,8 @@ def tiling_adv(prime, seq):
     tiles[key1]=(tile1)
     tiles_by_index.append(tile1)
     # Update mapping within Tile object - left is itself, upper is tile0
-    tile1.update_mapping(tile0.left_image, tile1)
-    tile1.update_mapping(tile0.upper_image, tile0)
-    # Map structure - key=location; value=(parent Tile, image Tile a, image Tile b, ...)
-    #maps[(0,0)]=[tile1,tile1,tile0,-1,-1] # -1 implies a missing image tile index
+    tile1.update_mapping(tile1.left_image, tile1)
+    tile1.update_mapping(tile1.upper_image, tile0)
     # Add images to dictionary of tiles that should be processed, where the value implies the following:
     # 1 = left image tile
     # 2 = upper image tile
@@ -66,7 +54,6 @@ def tiling_adv(prime, seq):
     new_tiles[(1,0)]=tile1.lower_image
     # Tracker for number of tiles generated
     tiles_gen=0
-    blank_tile=tile.Tile(-999, [-999], (-999, -999))
     # Start slice list, which holds two lists:
     # List 1 contains all the tiles from the previous slice
     # List 2 contains all of the tiles computed so far in the current slice
@@ -90,12 +77,15 @@ def tiling_adv(prime, seq):
                 tiles_gen += 1
                 # Generate tile with tile_gen function
                 new_tile_val=[]
-                if (row == 0):
-                    new_tile_val=tile_gen([seq(i)%prime for i in range((slice_count*tile_len)-2, ((slice_count+1)*tile_len)-2)], current_slice[0][0])
-                elif (row == 1):
-                    new_tile_val=tile_gen(current_slice[0][0], tile0, current_slice[1][0])
+                if (row == 0): # Top row needs specific handling
+                    sequence=[seq(i)%prime for i in range(((slice_count-1)*tile_len)-2, ((slice_count)*tile_len)-2)]
+                    new_tile_val=top_tile_gen(sequence, current_slice[0][0], prime)
+                elif (row == 1): # Row 1 also needs specific handling
+                    sequence=[seq(i)%prime for i in range(((slice_count-1)*tile_len)-2, ((slice_count)*tile_len)-2)]
+                    new_tile_val=second_tile_gen(sequence, current_slice[0][0], prime)
                 else:
-                    new_tile_val=tile_gen(current_slice[0][row-1], current_slice[0][row-2], current_slice[1][row-1])
+                    new_tile_val=tile_gen(current_slice[0][1], current_slice[0][0], current_slice[1][row-1], prime)
+                    current_slice[0].pop(0)
                 # Check if tile is new/unique
                 key=str(new_tile_val)
                 unique=tiles.get(key)
@@ -105,7 +95,7 @@ def tiling_adv(prime, seq):
                     tiles[key]=new_tile # Add to tiles dit
                     tiles_by_index.append(new_tile)
                     growth_marker=slice_count
-                    # Also add (row,col) to maps dict, and record location of image tiles
+                    # Also record location of image tiles
                     if(row==0): # If we're on the top row, the upper image tile will be a zero tile
                         new_tile.update_mapping(new_tile.upper_image, tile0)
                     else:
@@ -114,8 +104,16 @@ def tiling_adv(prime, seq):
                     new_tiles[(row*2,col*2+1)]=new_tile.right_image # Right image tile
                     new_tiles[((row*2)+1,(col*2))]=new_tile.lower_image # Lower image tile
                     image_tile_ref.image_tile=new_tile
-                else:
+                else: # Otherwise it is actually a previously seen tile
                     image_tile_ref.image_tile=unique
+                    new_tile=unique
+                    # Add image tiles to list of known future tiles
+                    #if(slice_count<7500): # known tiles cheat
+                    if(row!=0): # If we're on the top row, the upper image tile will be a zero tile
+                        known_tiles[(row*2-1,col*2+1)]=new_tile.upper_image # Upper image tile
+                    known_tiles[(row*2,col*2)]=new_tile.left_image # Left image tile
+                    known_tiles[(row*2,col*2+1)]=new_tile.right_image # Right image tile
+                    known_tiles[((row*2)+1,(col*2))]=new_tile.lower_image # Lower image tile
                 new_tiles.pop((row,col))
                 current_slice[1].append(new_tile)
             else:
@@ -123,6 +121,10 @@ def tiling_adv(prime, seq):
                 image_tile_ref=known_tiles.pop((row,col))
                 image_tile=image_tile_ref.image_tile
                 current_slice[1].append(image_tile)
+                if (row>1):
+                    current_slice[0].pop(0)
+                # Add image tiles to list of known future tiles
+                #if(slice_count<7500): # known tiles cheat
                 if(row!=0): # If we're on the top row, the upper image tile will be a zero tile
                     known_tiles[(row*2-1,col*2+1)]=image_tile.upper_image # Upper image tile
                 known_tiles[(row*2,col*2)]=image_tile.left_image # Left image tile
@@ -137,37 +139,94 @@ def tiling_adv(prime, seq):
     
     # Clear current slice to save memory
     current_slice = []
-    known_tiles= []
     print("Number of unique tiles:", len(tiles))
     print("Number of generated tiles:", tiles_gen)
     print("Tiles unmapped (expected=0):", len(new_tiles))
-    if len(new_tiles)>1:
+    if len(new_tiles)>0:
         for key, val in new_tiles.items():
             print("Tile", key, "from position", val)
+    print("Tiles overpredicted:", len(known_tiles))
+    known_tiles = []
     cell_count=slice_count*tile_len
     print("Number Wall length (tiles):", slice_count, "and (cells):", cell_count)
     return tiles, tiles_by_index, cell_count
 
 # Generates the lower tile based on the three tiles above it
 # This version of the function works for any row other than row 0
-def tile_gen(left_tile: tile.Tile, upper_tile: tile.Tile, right_tile: tile.Tile):
+def tile_gen(left_tile: tile.Tile, upper_tile: tile.Tile, right_tile: tile.Tile, prime: int):
+    tile_len=tile.Tile.tile_length
     output_tile_val=[]
     left_tile_val=left_tile.value
     upper_tile_val=upper_tile.value
     right_tile_val=right_tile.value
-        
+    incomplete_nw=[['*' for i in range(2*tile_len)] for j in range(2*tile_len-1)]
+    # Left tile
+    middle=(len(incomplete_nw)-1)//2
+    tile_it=tile_len//2 -1
+    for i in range(tile_len):
+        incomplete_nw[middle][i]=left_tile_val[tile_it][i]
+    for i in range(tile_it):
+        for j in range(tile_len-2-2*i):
+            incomplete_nw[middle-i-1][1+j+i]=left_tile_val[tile_it-1-i][j]
+            incomplete_nw[middle+1+i][1+i+j]=left_tile_val[tile_it+1+i][j]
+    # Right tile
+    for i in range(tile_len):
+        incomplete_nw[middle][i+tile_len]=right_tile_val[tile_it][i]
+    for i in range(tile_it):
+        for j in range(tile_len-2-2*i):
+            incomplete_nw[middle-i-1][1+j+i+tile_len]=right_tile_val[tile_it-1-i][j]
+            incomplete_nw[middle+1+i][1+i+j+tile_len]=right_tile_val[tile_it+1+i][j]
+    # Upper tile
+    for i in range(tile_len):
+        incomplete_nw[tile_it][1+i+tile_it]=upper_tile_val[tile_it][i]
+    for i in range(tile_it):
+        for j in range(tile_len-2-2*i):
+            incomplete_nw[tile_it-i-1][2+j+i+tile_it]=upper_tile_val[tile_it-1-i][j]
+            incomplete_nw[tile_it+1+i][2+i+j+tile_it]=upper_tile_val[tile_it+1+i][j]
+    complete_nw=source.nw_from_tuple(incomplete_nw, prime)
+    # Extract calculated lower tile
+    output_tile_val=[complete_nw[tile_len+tile_len//2-1][tile_len//2:tile_len+tile_len//2]]
+    for i in range(tile_len//2-1):
+        output_tile_val.insert(0, complete_nw[tile_len+tile_len//2-i-2][tile_len//2+i+1:tile_len+tile_len//2-i-1])
+        output_tile_val.append(complete_nw[tile_len+tile_len//2+i][tile_len//2+i+1:tile_len+tile_len//2-i-1])
+    complete_nw=[]
     return output_tile_val
 
 # Generates a new tile on row 0
-def tile_gen(seq: list, left_tile: tile.Tile):
+def top_tile_gen(seq: list, left_tile: tile.Tile, prime: int):
+    tile_len=tile.Tile.tile_length
     output_tile_val=[]
+    left_tile_val=cop.deepcopy(left_tile.value)
+    left_tile_val.pop(0)
+    left_tile_val.pop(0)
+    complete_nw=source.slice_gen(prime, left_tile_val, seq)
+    output_tile_val.append(cop.deepcopy(complete_nw[1]))
+    for j in range((tile_len-2)//2):
+        output_tile_val.insert(0, [0 for k in range(tile_len-2-2*j)])
+        output_tile_val.append(complete_nw[2+j][-(tile_len-2-2*j):])
+    complete_nw=[]
+    return output_tile_val
 
+# Generates a new tile on row 1
+def second_tile_gen(seq: list, left_tile: tile.Tile, prime: int):
+    tile_len=tile.Tile.tile_length
+    output_tile_val=[]
+    left_tile_val=cop.deepcopy(left_tile.value)
+    left_tile_val.pop(0)
+    left_tile_val.pop(0)
+    complete_nw=source.slice_gen(prime, left_tile_val, seq)
+    tile_mid=(tile_len//2)+1
+    output_tile_val.append(cop.deepcopy(complete_nw[tile_mid]))
+    for j in range((tile_len-2)//2):
+        output_tile_val.insert(0, complete_nw[tile_mid-1-j][:-(j+1)*2])
+        output_tile_val.append(complete_nw[tile_mid+1+j])
+    complete_nw=[]
     return output_tile_val
 
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    prime_input=7 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
     tile_length=8 # Currently tested with 8 and 16 length
     tile.Tile.tile_length=tile_length
     sequence=funct.pap_f # Currently pap_f, pap_f5, or pagoda
@@ -204,5 +263,10 @@ def main():
         end=time.time()
         print("- Full time =",end-start)
         #return unique_tuples
-    return #tiling_output
+    return tiling_output
 output=main()
+
+# Hint: if you need to print a tile/number wall section/list, use the following and update list_name
+#print('\n'.join('{}: {}'.format(*k) for k in enumerate(list_name)))
+# MIN RUNTIME ON PF F7 WITH KNOWN TILE CHEAT = 285 SECS
+# MAX MEMORY USAGE ON PF F7 WITH KNOWN TILE CHEAT = 18GB (>30GB without cheat)

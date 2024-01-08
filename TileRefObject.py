@@ -1,8 +1,7 @@
 
 
 class TileRef:
-    def __init__(self, parent_tile, image_tile):
-        self.parent_tile = parent_tile
+    def __init__(self, image_tile):
         self.image_tile = image_tile
 
     def __str__(self):
