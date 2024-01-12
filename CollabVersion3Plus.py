@@ -264,7 +264,7 @@ def main():
         print("- Full time =",end-start)
         #return unique_tuples
     return tiling_output
-output=main()
+#output=main()
 
 # Hint: if you need to print a tile/number wall section/list, use the following and update list_name
 #print('\n'.join('{}: {}'.format(*k) for k in enumerate(list_name)))

@@ -15,7 +15,7 @@ import TileRefObject as tile_ref
 
 class Tile:
     tile_length = 0
-    def __init__(self, id: int, value: list, coord: tuple):
+    def __init__(self, id: int, value: list):
         self.id = id
         # Specific constructor for zeroth tile
         if id==0:
@@ -24,26 +24,24 @@ class Tile:
             for i in range((Tile.tile_length-2)//2):
                 self.value.insert(0, [0 for j in range((Tile.tile_length-2)-(2*i))])
                 self.value.append([0 for j in range((Tile.tile_length-2)-(2*i))])
-            self.location = (-1, -1)
-            zeroRef=tile_ref.TileRef(self)
-            self.left_image = zeroRef
-            self.upper_image = zeroRef
-            self.right_image = zeroRef
-            self.lower_image = zeroRef
+            #zeroRef=tile_ref.TileRef(self)
+            self.left_image = self
+            self.upper_image = self
+            self.right_image = self
+            self.lower_image = self
         else:
             self.value = value
-            self.location = coord
-            self.left_image = tile_ref.TileRef(-1)
-            self.upper_image = tile_ref.TileRef(-1)
-            self.right_image = tile_ref.TileRef(-1)
-            self.lower_image = tile_ref.TileRef(-1)
+            self.left_image = -1
+            self.upper_image = -1
+            self.right_image = -1
+            self.lower_image = -1
 
     # We pass in the image tile ref to this function to save 'figuring out' which image variable to change
     def update_mapping (self, image_tile_ref: tile_ref.TileRef, image_tile):
         image_tile_ref.image_tile = image_tile
 
     def __str__(self):
-        return f"Tile ID {self.id}, location {self.location}, with value: \n {self.value}"
+        return f"Tile ID {self.id}, with value: \n {self.value}"
 
     def str_map(self):
         return f"Parent Tile ID {self.id}, left image ID {self.left_image}, upper image ID {self.upper_image}, right image ID {self.right_image}, lower image ID {self.lower_image}"
