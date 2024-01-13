@@ -6,6 +6,8 @@ import TileObject as tile
 import TileRefObject as tile_ref
 import CollabVersion3 as source
 
+# *** THIS FUNCTION NEEDS TO BE UPDATED TO REFLECT CHANGES TO THE Tile CLASS
+# *** AND OTHER POTENTIAL SIDE EFFECTS OF V4'S IMPLEMENTATION
 def tiling_adv(prime, seq):
     # Set up initial environment in similar way to V3 tiling.
     # Generate first slice -
@@ -226,7 +228,7 @@ def second_tile_gen(seq: list, left_tile: tile.Tile, prime: int):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=7 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
     tile_length=8 # Currently tested with 8 and 16 length
     tile.Tile.tile_length=tile_length
     sequence=funct.pap_f # Currently pap_f, pap_f5, or pagoda
@@ -236,7 +238,7 @@ def main():
     true_verify=False
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
-    # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
+    # tiling_output = [tiles_dict, tiles_by_index, cell_count]
     tiling_output = tiling_adv(prime_input, sequence)
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)

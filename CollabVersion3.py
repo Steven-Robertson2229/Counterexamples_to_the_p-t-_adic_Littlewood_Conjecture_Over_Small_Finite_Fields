@@ -727,13 +727,13 @@ def nw_entry(nw, row, col, prime):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=7 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
     tile_length=8 # Currently tested with 8 and 16 length
     sequence=pap_f # Currently pap_f, pap_f5, or pagoda
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
-    true_verify=True
+    true_verify=False
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
@@ -764,5 +764,4 @@ def main():
         return unique_tuples
     return tiling_output
 #output=main()
-
 
