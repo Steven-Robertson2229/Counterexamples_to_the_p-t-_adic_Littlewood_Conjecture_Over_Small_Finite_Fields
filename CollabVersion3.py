@@ -733,7 +733,7 @@ def main():
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
-    true_verify=False
+    true_verify=True
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
@@ -761,7 +761,7 @@ def main():
         print("- Verify time =", verify_end-verify_start)
         end=time.time()
         print("- Full time =",end-start)
-        return unique_tuples
+        #return unique_tuples
     return tiling_output
 #output=main()
 

@@ -31,10 +31,10 @@ class Tile:
             self.lower_image = self
         else:
             self.value = value
-            self.left_image = -1
-            self.upper_image = -1
-            self.right_image = -1
-            self.lower_image = -1
+            self.left_image = '*'
+            self.upper_image = '*'
+            self.right_image = '*'
+            self.lower_image = '*'
 
     # We pass in the image tile ref to this function to save 'figuring out' which image variable to change
     # This function is now defunct, with the move to just using Tile objects.
