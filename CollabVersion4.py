@@ -4,6 +4,7 @@ import CommonFunctions as CF
 import CollabVersion3 as V3
 import TileRefObject as TR
 import CollabVersion3Plus as V3P
+import Find_sub_rules as SR
 
 # Function to find all unique tiles and mappings/substitutions
 # following the Version 4 process as defined in the CHANGELOG.md
@@ -109,8 +110,16 @@ def div(num, prime):
     print("ERROR - bad input to div function.")
     print("Input: ", prime)
     return "ERROR"
-def v4(sub_rules, coding, prime):
-    tile_len=TO.Tile.tile_length
+
+def v4(seq, prime):
+    sub_rules,coding=SR.sub_rule_full(seq)
+    tile_len=len(coding[0][1])
+    print('sub_rules=')
+    for i in sub_rules:
+        print(i)
+    print('coding=')
+    for i in coding:
+        print(i)
     tiles={}
     new_tiles=[]
     tiles_by_index=[]
@@ -562,16 +571,17 @@ def seconds_to_hours(tot_time):
 # Primary testing function.
 def main():
     # *_sub_rules is the input substitution rules for tiles on the top row of this sequence
-    pf_sub_rules=[['1','12'],['2','32'],['3','14'],['4','34']]
-    sub_rules=pf_sub_rules # Pick the substitution rules of your desired sequence
+    #pf_sub_rules=[['1','12'],['2','32'],['3','14'],['4','34']]
+    #sub_rules=pf_sub_rules # Pick the substitution rules of your desired sequence
     # *_coding is the input sequence split into the size of the input tiles
-    pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
-    coding=pf_coding # Must match sequence used for sub_rules
-    prime=7 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
-    TO.Tile.tile_length=len(coding[0][1]) # Set tile length from sequence coding
+    #pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
+    #coding=pf_coding # Must match sequence used for sub_rules
+    prime=3 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
+    TO.Tile.tile_length=8 # Set tile length from sequence coding
+    seq=[CF.pap_f(i) for i in range(0,10000)]
     start=time.time()
     print("Tiling Test with mod", prime, "and tile length", TO.Tile.tile_length)
-    tiling_output=v4(sub_rules,coding,prime)
+    tiling_output=v4(seq,prime)
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)
     print("Total number of unique tiles:", len(tiling_output))
