@@ -540,7 +540,7 @@ def four_tuples(maps):
         unique_tuples[key]=tup1
     # For each mapping, check the unknown tuple combinations for new tuples
     # Skip first entry, its all zeros
-    for tup in maps[1:]:
+    for tup in maps:
         skip=False
         # Take care when zero tiles are present
         if(tup[1]==0):
@@ -648,14 +648,23 @@ def verify_tuples(tuples_by_index, tiles_by_index, tiles, prime):
 # Generates the 4th tile of a section of number wall
 # using the three tiles above. Calls nw_entry function
 # for calculation logic on each cell.
-def nw_from_tuple(incomplete_nw, prime):
+def nw_from_tuple(incomplete_nw, prime,extra=False):
     tile_len=len(incomplete_nw[0])//2
     # Top half of tile
-    for i in range(1, tile_len//2+1):
-        for j in range(2*i):
-            row=tile_len+i-1
-            col=tile_len-i+j
-            incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
+    if extra==False:
+        for i in range(1, tile_len//2+1):
+            for j in range(2*i):
+                row=tile_len+i-1
+                col=tile_len-i+j
+                incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
+    else:
+        incomplete_nw[tile_len][tile_len-1]=extra[0]
+        incomplete_nw[tile_len][tile_len]=extra[1]
+        for i in range(2, tile_len//2+1):
+            for j in range(2*i):
+                row=tile_len+i-1
+                col=tile_len-i+j
+                incomplete_nw[row][col]=nw_entry(incomplete_nw, row, col, prime)
     # Bottom half of tile
     for i in range(1, tile_len//2):
         for j in range(tile_len-2*i):
@@ -764,4 +773,5 @@ def main():
         #return unique_tuples
     return tiling_output
 #output=main()
+
 

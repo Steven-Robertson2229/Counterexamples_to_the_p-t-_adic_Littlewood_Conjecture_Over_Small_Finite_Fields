@@ -32,7 +32,7 @@ def nth_entry_of_pagoda(n):
     """
     return nth_entry_of_paperfolding(n+1) - nth_entry_of_paperfolding(n-1)
 
-def pagseq(start,end):
+def pagoda(start,end):
     return [nth_entry_of_pagoda(i) for i in range(start,end+1)]
 
 def nth_entry_of_adapted_paperfolding(n): #calculates nth digit of the paper folding sequence
@@ -874,8 +874,8 @@ def main():
     # *_coding is the input sequence split into the size of the input tiles
     #pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
     #coding=pf_coding # Must match sequence used for sub_rules
-    prime=5 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
-    seq=adapted_paperfolding(1,10000)
+    prime=7 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
+    seq=paperfolding(1,10000)
     TO.Tile.tile_length=16 # Set tile length from sequence coding
     start=time.time()
     print("Tiling Test with mod", prime, "and tile length", TO.Tile.tile_length)

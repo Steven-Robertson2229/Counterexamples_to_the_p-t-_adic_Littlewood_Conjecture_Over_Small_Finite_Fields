@@ -12,114 +12,50 @@ import Find_sub_rules as SR
 # this process is complete, every substitution rule for the number wall
 # has been identified.
 
-def ratio(X, Y, prime):
-   return (X*div(Y, prime)) % prime
+#Finds all the tile that have entries making up with zeroth row of
+#the number wall
+def one_up_sub(seq,prime,tile_len):
+    #Generate a large portion of the number wall
+    prev_wall=[[0],[1],[seq[0]]]
+    for i in range(1,len(seq)):
+        prev_wall=V3.wall_gen(prime, prev_wall, seq[i])
+    tiling=[[],[]]
+    tiles=[]
+    #split the top row into tiles and check for uniqueness
+    for i in range(len(seq)//tile_len):
+        new_tile=[[1 for i in range(tile_len)]]
+        for j in range(tile_len//2-1):
+            row=[]
+            zrow=[]
+            for k in range(tile_len-2-2*j):
+                zrow.append(0)
+                row.append(prev_wall[2+j][tile_len*i+k])
+            new_tile.append(row)
+            new_tile.insert(0,zrow)
+        if new_tile not in tiles:
+            tiles.append(new_tile)
+        tiling[0].append(tiles.index(new_tile))
+    #find the second row of tiles and check for uniqueness
+    for i in range(len(seq)//tile_len-1):
+        second_tile=[[prev_wall[1+tile_len//2][j] for j in range(tile_len*i,tile_len*(i+1))]]
+        for j in range(tile_len//2-1):
+            urow=[]
+            lrow=[]
+            for k in range(tile_len-2-2*j):
+                urow.append(prev_wall[0+tile_len//2-j][tile_len*i+k+2+2*j])
+                lrow.append(prev_wall[2+tile_len//2+j][tile_len*i+k])
+            second_tile.append(lrow)
+            second_tile.insert(0,urow)
+        if second_tile not in tiles:
+            tiles.append(second_tile)
+        tiling[1].append(tiles.index(second_tile))
+    return tiles,tiling
 
-# Note: this only works with prime 2, 3, 5, 7, 11, and 19
-def div(num, prime):
-    num=num%prime
-    if prime==2:
-        return 1
-    elif prime==3:
-        if num==1:
-            return 1
-        else: # num==2:
-            return 2
-    elif prime==5:
-        if num==1:
-            return 1
-        elif num==2:
-            return 3
-        elif num==3:
-            return 2
-        else: # num==4:
-            return 4
-    elif prime==7:
-        if num==1:
-            return 1
-        elif num==2:
-            return 4
-        elif num==3:
-            return 5
-        elif num==4:
-            return 2
-        elif num==5:
-            return 3
-        else: # num==6:
-            return 6
-    elif prime==11:
-        if num==1:
-            return 1
-        elif num==2:
-            return 6
-        elif num==3:
-            return 4
-        elif num==4:
-            return 3
-        elif num==5:
-            return 9
-        elif num==6:
-            return 2
-        elif num==7:
-            return 8
-        elif num==8:
-            return 7
-        elif num==9:
-            return 5
-        else: # num==10:
-            return 10
-    else: # prime==19:
-        if num==1:
-            return 1
-        elif num==2:
-            return 10
-        elif num==3:
-            return 13
-        elif num==4:
-            return 5
-        elif num==5:
-            return 4
-        elif num==6:
-            return 16
-        elif num==7:
-            return 11
-        elif num==8:
-            return 12
-        elif num==9:
-            return 17
-        elif num==10:
-            return 2
-        elif num==11:
-            return 7
-        elif num==12:
-            return 8
-        elif num==13:
-            return 3
-        elif num==14:
-            return 15
-        elif num==15:
-            return 14
-        elif num==16:
-            return 6
-        elif num==17:
-            return 9
-        else: # num==18:
-            return 18
+#Version 4 of the tiling algorithm, but using the one up trick
 
-    # otherwise it was a bad input
-    print("ERROR - bad input to div function.")
-    print("Input: ", prime)
-    return "ERROR"
-
-def v4(seq, prime):
-    sub_rules,coding=SR.sub_rule_full(seq)
-    tile_len=len(coding[0][1])
-    print('sub_rules=')
-    for i in sub_rules:
-        print(i)
-    print('coding=')
-    for i in coding:
-        print(i)
+def v4_1_up(seq, prime, tile_len):
+    #find tiles making up the zeroth row of the number wall
+    row_1_2_tiles,row_1_2_tiling=one_up_sub(seq, prime, tile_len) 
     tiles={}
     new_tiles=[]
     tiles_by_index=[]
@@ -129,67 +65,87 @@ def v4(seq, prime):
         tile0_value.insert(0,([0 for i in range(tile_len-2-2*i)]))
         tile0_value.append([0 for i in range(tile_len-2-2*i)])
     true_tile0=TO.Tile(0, tile0_value)
-    true_key0=str([0])
+    true_key0=str(tile0_value)
     tiles[true_key0]=(true_tile0)
     tiles_by_index.append(true_tile0)
     tiles[true_key0].update_images(tiles[true_key0],tiles[true_key0],tiles[true_key0],tiles[true_key0])
-    # Instantiate Tile object for the tile above the input row
-    tile0_val=[[0 for i in range(tile_len)]]
-    for i in range(tile_len//2 -2):
-        tile0_val.insert(0,([0 for i in range(tile_len-2-2*i)]))
-        tile0_val.append([0 for i in range(tile_len-2-2*i)])
-    tile0_val.append([1,1])
-    tile0_val.insert(0,[0,0])
-    tile0=TO.Tile(1, tile0_val)
-    key0=str(tile0.value)
-    tiles[key0]=(tile0)
-    tiles_by_index.append(tile0)
-    tile0.update_images(tiles[true_key0],tiles[true_key0],tiles[true_key0],tiles[key0])
+    # Instantiate Tile object for tiles making up the zeroth row
     # Generate input substitution tiles (top row tiles)
-    for i in range(len(sub_rules)):
-        prev_wall=[[0],[1],[int(coding[i][1][0])]]
-        for j in range(1, tile_len):
-            prev_wall=V3.wall_gen(prime, prev_wall, int(coding[i][1][j])%prime)
-        for j in range(2):
-            prev_wall[0].remove(0)
-            prev_wall[0].remove(0)
-            prev_wall[1].remove(1)
-        for j in range(tile_len//2-3):
-            prev_wall.insert(0,[0 for k in range(tile_len-6-2*j)])
-        key=str(prev_wall)
-        new_tile=TO.Tile(len(tiles),prev_wall)
+    for i in row_1_2_tiles:
+        key=str(i)
+        new_tile=TO.Tile(len(tiles),i)
+        #if the tiles appear on the second row of tiles, then their scaffolding
+        #needs to be calculated also
+        if row_1_2_tiles.index(i)==2 or row_1_2_tiles.index(i)==4:
+            new_tile.scaffolding=[tiles_by_index[1],tiles_by_index[0],tiles_by_index[2]]
+        if row_1_2_tiles.index(i)==3 or row_1_2_tiles.index(i)==5:
+            new_tile.scaffolding=[tiles_by_index[2],tiles_by_index[0],tiles_by_index[1]]
         tiles[key]=new_tile
         tiles_by_index.append(new_tile)
         #print(new_tile)
+    #Due to the second row of tiles containing some of the zeroth row of the
+    #number wall, a list is created storing the additional entries of the sequence
+    #missing from any tiles on second row
+    lis=[[1,0],[1,0],[1,1],[1,1]]
     # Generate images for top row tiles using substitution rules + zero tile
-    for i in range(len(sub_rules)):
-        left=sub_rules[i][1][0]
-        right=sub_rules[i][1][1]
-        left_tile=tiles_by_index[int(left)+1]
-        right_tile=tiles_by_index[int(right)+1]
-        # Use scaffolding tile generation technique to find fourth image tile
-        output=V3P.tile_gen(left_tile, tile0, right_tile, prime)
-        key=str(output)
-        unique=tiles.get(key)
-        tile_index=len(tiles)
-        if (unique == None): # If tile not in tiles dict, its a new unique tile
-            new_tile=TO.Tile(tile_index, output)
-            tiles[key]=new_tile # Add to tiles dit
-            new_tiles.append(new_tile)
-            new_tile.scaffolding=[left_tile, tile0, right_tile] # Add scaffolding to the scaffolding list
-            unique=new_tile
-        current_tile=tiles_by_index[i+2]
-        current_tile.update_images(left_tile, tile0, right_tile, unique)
-    #for i in tiles:
-     #   print(tiles[i])
-      #  print('image=',tiles[i].left_image,tiles[i].upper_image,tiles[i].right_image,tiles[i].lower_image)
+    for i in range(len(tiles_by_index)):
+        #The all zero tile already has its image
+        if str(tiles_by_index[i].value)==true_key0:
+            pass
+        #The tiles that appear on the first row of tiles have their images predefined
+        elif tiles_by_index[i].value==row_1_2_tiles[0]:
+            #print(tiles_by_index[0])
+            tiles[str(tiles_by_index[i].value)].update_images(tiles[str(tiles_by_index[1].value)], tiles[str(tiles_by_index[0].value)],\
+                                   tiles[str(tiles_by_index[2].value)], tiles[str(tiles_by_index[3].value)])
+        elif tiles_by_index[i].value==row_1_2_tiles[1]:
+            #print(tiles_by_index[0])
+            tiles[str(tiles_by_index[i].value)].update_images(tiles[str(tiles_by_index[1].value)], tiles[str(tiles_by_index[0].value)],\
+                                   tiles[str(tiles_by_index[2].value)], tiles[str(tiles_by_index[5].value)])
+        #The images for the remaining initital tiles are calculated using the 
+        #scaffolding
+        else:   
+            scaffolding=tiles[str(tiles_by_index[i].value)].scaffolding
+            left_scaffold=image_to_tile(scaffolding[0])
+            upper_scaffold=image_to_tile(scaffolding[1])
+            right_scaffold=image_to_tile(scaffolding[2])
+            merged_image=nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime,0,lis[i-3])
+            image=image_split(merged_image) # Returns images as [upper,left,right,lower]
+            images=[]
+            #print(len(image))
+            for j in range(len(image)):
+                value=image[j]
+                key=str(value)
+                unique=tiles.get(key)
+                index=len(tiles)
+                # If the image tile is unique, add to tiles dict and new_tiles
+                # list ready to have its own images processed
+                if unique==None:
+                    new_tile=TO.Tile(index, value)
+                    tiles[key]=new_tile
+                    new_tiles.append(new_tile)
+                    # Construct scaffolding for new_tile
+                    # For surety on scaffolding assembly, check 'general case' diagram
+                    # Hint: scaffolding variable is a list of [left, upper, right] scaffold tiles for the parent tile
+                    
+                    if(j == 0): # Upper tile
+                        new_tile.scaffolding=[scaffolding[0].right_image, scaffolding[1].lower_image, scaffolding[2].left_image]
+                    elif(j == 1): # Left tile
+                        new_tile.scaffolding=[scaffolding[0].lower_image, scaffolding[0].right_image, images[0]]
+                    elif(j == 2): # Right tile
+                        new_tile.scaffolding=[images[0], scaffolding[2].left_image, scaffolding[2].lower_image]
+                    elif(j == 3): # Lower tile
+                        new_tile.scaffolding=[images[1], images[0], images[2]]
+                    else:
+                        return "ERROR"
+                    unique=new_tile
+                images.append(unique)
+                # Update the image tiles of the current tile
+            tiles[str(tiles_by_index[i].value)].update_images(images[1], images[0], images[2], images[3])
     # Loop through list of tiles (excluding input section)
     # identifying the images of each tile
     count = 0
     while (new_tiles != []):
         tile=new_tiles.pop(0)
-        #for i in tile.scaffolding:
-         #   print(i)
         if (tile.scaffolding != -1): # REMOVE******
             scaffolding=tile.scaffolding
             # Generate full image 4-tuples from scaffold tiles
@@ -198,21 +154,17 @@ def v4(seq, prime):
             left_scaffold=image_to_tile(scaffolding[0])
             upper_scaffold=image_to_tile(scaffolding[1])
             right_scaffold=image_to_tile(scaffolding[2])
-            if(count%10000 == 0):
+            if count==0:
+                f=open('progress_tracker_pf_F'+str(prime)+'.txt', 'w')
+            if(count%10000 == 0) and count!=0:
+                f=open('progress_tracker_pf_F'+str(prime)+'.txt', 'a')
+                f.write("Unique tiles: "+ str(len(tiles))+ " - Processed tiles: "+ str(count*4)+  " - Remaining to process: "+ str(len(new_tiles)))
+                f.write('\n')
+                f.close()
                 print("Unique tiles:", len(tiles), "- Processed tiles:", count*4, "- Remaining to process:", len(new_tiles))
-            merged_image=nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime)
+            merged_image=nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime,count)
             # Split merged image tiles into constituent tiles
             # ready to be assigned as images of current tile
-            if count<1:
-                print(count)
-                print('left')
-                print(left_scaffold)
-                print('upper')
-                print(upper_scaffold)
-                print('right')
-                print(right_scaffold)
-                print('merge')
-                print(merged_image)
             image=image_split(merged_image) # Returns images as [upper,left,right,lower]
             images=[]
             for i in range(len(image)):
@@ -229,6 +181,7 @@ def v4(seq, prime):
                     # Construct scaffolding for new_tile
                     # For surety on scaffolding assembly, check 'general case' diagram
                     # Hint: scaffolding variable is a list of [left, upper, right] scaffold tiles for the parent tile
+                    
                     if(i == 0): # Upper tile
                         new_tile.scaffolding=[scaffolding[0].right_image, scaffolding[1].lower_image, scaffolding[2].left_image]
                     elif(i == 1): # Left tile
@@ -246,44 +199,6 @@ def v4(seq, prime):
         count+=1
     
     return tiles
-
-def one_up_sub(seq,prime,tile_len):
-    prev_wall=[[0],[1],[seq[0]]]
-    for i in range(1,len(seq)):
-        prev_wall=V3.wall_gen(prime, prev_wall, seq[i])
-    tiling=[[],[]]
-    tiles=[]
-    for i in range(len(seq)//tile_len):
-        new_tile=[[1 for i in range(tile_len)]]
-        for j in range(tile_len//2-1):
-            row=[]
-            zrow=[]
-            for k in range(tile_len-2-2*j):
-                zrow.append(0)
-                row.append(prev_wall[2+j][tile_len*i+k])
-            new_tile.append(row)
-            new_tile.insert(0,zrow)
-        if new_tile not in tiles:
-            tiles.append(new_tile)
-        tiling[0].append(tiles.index(new_tile))
-    #print(tiles)
-    for i in range(len(seq)//tile_len-1):
-        second_tile=[[prev_wall[1+tile_len//2][j] for j in range(tile_len*i,tile_len*(i+1))]]
-        for j in range(tile_len//2-1):
-            urow=[]
-            lrow=[]
-            for k in range(tile_len-2-2*j):
-                urow.append(prev_wall[0+tile_len//2-j][tile_len*i+k+2+2*j])
-                lrow.append(prev_wall[2+tile_len//2+j][tile_len*i+k])
-            second_tile.append(lrow)
-            second_tile.insert(0,urow)
-        if second_tile not in tiles:
-            tiles.append(second_tile)
-        tiling[1].append(tiles.index(second_tile))
-    #print([prev_wall[1+tile_len//2][i] for i in range(14)])
-    #print([prev_wall[2+tile_len//2][i] for i in range(16)])
-    return tiles,tiling
-
 # Function to split full image 4 tuple into constituent parts    
 def image_split(image):
     tile_len=TO.Tile.tile_length
@@ -317,7 +232,7 @@ def image_split(image):
     return [upper,left,right,lower]
 
 # Function to calculate full image (all four tiles) from input scaffolding
-def nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime,count=0,extra=False):
+def nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime,count,extra=False):
     tile_len=TO.Tile.tile_length*2
     to2=tile_len//2
     to2m1=to2-1
@@ -474,8 +389,12 @@ def verify_tuples(tuples_by_index, tiles, prime):#tiles_by_index, tiles, prime):
         count+=1
         #print(tup)
         # Add print block for progress
-        if(index==(tuples_num*print_helper)):
-            print("Verification process at", 25*print_helper,"% complete!")
+        if(index%1000000==0):
+            print("Verification process at", 100*index/len(tuples_by_index),"% complete!")
+            f=open('progress_tracker_pf_F'+str(prime)+'.txt', 'a')
+            f.write("Verification process at"+ str(100*index/len(tuples_by_index))+"% complete!")
+            f.write('\n')
+            f.close()
             print_helper += 1
         if(tup[1]==0):
             pass
@@ -559,7 +478,7 @@ def nw_entry(nw, row, col, prime):
         return 0
     # Case 1 - non-window (standard wall entry)
     elif(nw[row-2][col]!=0):
-        result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*div(nw[row-2][col], prime))%prime
+        result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*CF.div(nw[row-2][col], prime))%prime
         return result
     # Case 2 - inner window frame
     elif(nw[row-2][col]==0 and nw[row-1][col]==0):
@@ -578,7 +497,7 @@ def nw_entry(nw, row, col, prime):
         C=nw[row-diagA][col+diagA]
         length=diagA+diagB-1
         k=diagA
-        return ((((-1)**(length*k))*B*C)*div(A, prime))%prime
+        return ((((-1)**(length*k))*B*C)*CF.div(A, prime))%prime
     # Case 3 - outer window frame
     else:
         current=0
@@ -588,7 +507,7 @@ def nw_entry(nw, row, col, prime):
            current=nw[row-1-diagB][col-diagB]
         B=current
         F=nw[row-1-diagB][col-1-diagB]
-        rB=(B*div(nw[row-2-diagB][col-diagB],prime))%prime
+        rB=(B*CF.div(nw[row-2-diagB][col-diagB],prime))%prime
         current=0
         diagA=0
         while(current==0):
@@ -596,19 +515,19 @@ def nw_entry(nw, row, col, prime):
             current=nw[row-1-diagB-diagA][col-diagB+diagA]
         A=current
         E=nw[row-2-diagB-diagA][col-diagB+diagA]
-        rA=(A*div(nw[row-1-diagB-diagA][col-1-diagB+diagA], prime))%prime
+        rA=(A*CF.div(nw[row-1-diagB-diagA][col-1-diagB+diagA], prime))%prime
         C=nw[row-1-diagA][col+diagA]
         G=nw[row-1-diagA][col+diagA+1]
-        rC=(C*div(nw[row-1-diagA+1][col+diagA], prime))%prime
+        rC=(C*CF.div(nw[row-1-diagA+1][col+diagA], prime))%prime
         length=diagA+diagB-1
         k=diagA
         D=nw[row-1][col]
-        rD=(D*div(nw[row-1][col+1], prime))%prime
-        calc1=(rB*E*div(A, prime))%prime
-        calc2=(((-1)**k)*(rA*F*div(B, prime)))%prime
-        calc3=(((-1)**k)*(rD*G*div(C, prime)))%prime
-        calc4=(rC*div(D, prime))%prime
-        return ((calc1+calc2-calc3)*div(calc4, prime))%prime
+        rD=(D*CF.div(nw[row-1][col+1], prime))%prime
+        calc1=(rB*E*CF.div(A, prime))%prime
+        calc2=(((-1)**k)*(rA*F*CF.div(B, prime)))%prime
+        calc3=(((-1)**k)*(rD*G*CF.div(C, prime)))%prime
+        calc4=(rC*CF.div(D, prime))%prime
+        return ((calc1+calc2-calc3)*CF.div(calc4, prime))%prime
     
 def seconds_to_hours(tot_time):
     minutes=tot_time//60
@@ -625,12 +544,12 @@ def main():
     # *_coding is the input sequence split into the size of the input tiles
     #pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
     #coding=pf_coding # Must match sequence used for sub_rules
-    prime=3 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
+    prime=11 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
     TO.Tile.tile_length=8 # Set tile length from sequence coding
     seq=[CF.pap_f(i) for i in range(0,500)]
     start=time.time()
     print("Tiling Test with mod", prime, "and tile length", TO.Tile.tile_length)
-    tiling_output=v4(seq,prime)
+    tiling_output=v4_1_up(seq,prime,TO.Tile.tile_length)
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)
     print("Total number of unique tiles:", len(tiling_output))

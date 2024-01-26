@@ -155,7 +155,7 @@ def tiling_adv(prime, seq):
 
 # Generates the lower tile based on the three tiles above it
 # This version of the function works for any row other than row 0
-def tile_gen(left_tile: tile.Tile, upper_tile: tile.Tile, right_tile: tile.Tile, prime: int):
+def tile_gen(left_tile: tile.Tile, upper_tile: tile.Tile, right_tile: tile.Tile, prime: int, extra=False):
     tile_len=tile.Tile.tile_length
     output_tile_val=[]
     left_tile_val=left_tile.value
@@ -185,7 +185,7 @@ def tile_gen(left_tile: tile.Tile, upper_tile: tile.Tile, right_tile: tile.Tile,
         for j in range(tile_len-2-2*i):
             incomplete_nw[tile_it-i-1][2+j+i+tile_it]=upper_tile_val[tile_it-1-i][j]
             incomplete_nw[tile_it+1+i][2+i+j+tile_it]=upper_tile_val[tile_it+1+i][j]
-    complete_nw=source.nw_from_tuple(incomplete_nw, prime)
+    complete_nw=source.nw_from_tuple(incomplete_nw, prime,extra)
     # Extract calculated lower tile
     output_tile_val=[complete_nw[tile_len+tile_len//2-1][tile_len//2:tile_len+tile_len//2]]
     for i in range(tile_len//2-1):

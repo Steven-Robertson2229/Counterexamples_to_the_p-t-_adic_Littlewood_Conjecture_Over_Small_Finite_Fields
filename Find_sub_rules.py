@@ -1,5 +1,16 @@
 import TileObject as TO
 TO.Tile.tile_len=16
+
+def pf3(n,m):
+    if n==0:
+        return 0
+    else:
+        while n%2==0:
+            n=n//2
+    return ((n-1)//2)%m
+
+def pf3seq(m,start,end):
+    return [pf3(i,m) for i in range(start,end+1)]
 def Dragon(n):
     """
     This function returns the nth element of the dragon sequence
@@ -51,7 +62,16 @@ def pf5(n): #calculates nth digit of the paper folding sequence
 def pfseq5(start,end,a,b):
     return [pf5(i) for i in range(start,end+1)]
 
+def pf_16(n):
+    if n==0:
+        return n
+    else:
+        while n%2==0:
+            n=n//2
+    return (n%16-1)//2
 
+def pf_16seq(start,end):
+    return [pf_16(i) for i in range(start,end+1)]
 def find_sub_rules(seq):
     l=0 #2**l is the length of the tile
     while l>=0:
@@ -118,11 +138,43 @@ def sub_rule_full(seq):
     sub_rules,coding=maps_to_sub_rules(maps)
     large_coding=apply_coding(sub_rules, coding)
     return sub_rules, large_coding
-sub_rules,coding=sub_rule_full(pfseq1(1,10000,0,1))
-print('sub_rules')
-for i in sub_rules:
-    print(i)
-print('coding')
-for i in coding:
-    print(i)
 
+
+def apply_sub_rule(sub_rules,n):
+    start=[1]
+    for i in range(n):
+        applied=[]
+        for j in start:
+            #print(start)
+            applied.append(sub_rules[j-1][1][0])
+            applied.append(sub_rules[j-1][1][1])
+        start=applied
+    return start
+
+# sub_rules,coding=sub_rule_full(pfseq5(1,10000,0,1))
+# #print('sub_rules')
+# for i in sub_rules:
+#     print(i)
+# print('coding')
+# for i in coding:
+#     print(i)
+# #sub_rules=[[1,[1,2]],[2,[2,1]]]
+# #for i in range(2,100):
+# #    for j in range(1,i+1):
+#  #       
+# seq=apply_sub_rule(sub_rules,20)
+# seq.pop(0)
+# sub_rules2=find_sub_rules(seq)
+# #print('sub_rules')
+# ##or i in sub_rules:
+#  #   print(i)
+# #print('maps')
+# #for i in sub_rules2:
+# #    print(i)
+# sub_rules2=maps_to_sub_rules(sub_rules2)[0]
+# print('sub_rules=sub_rules2: ', sub_rules==sub_rules2)
+# print('len(sub_rules)= ', len(sub_rules))
+# print('len(coding)= ', len(coding[0][1]))
+# #print('sub_rules2')
+# #for i in sub_rules2:
+# #    print(i)
