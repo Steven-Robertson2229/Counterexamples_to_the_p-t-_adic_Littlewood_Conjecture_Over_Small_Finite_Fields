@@ -364,6 +364,8 @@ def tiling(prime, seq, tile_len):
         # progress tracker print statement
         if(slice_count%50==0):
             print("Slice count:", slice_count,"- Unique tiles:", len(tiles), "- Processed tiles:", tiles_gen)
+        if slice_count==300:
+            return tiles
         col=slice_count-1
         row=0
         for i in range(slice_count):
@@ -686,6 +688,26 @@ def nw_entry(nw, row, col, prime):
         return result
     # Case 2 - inner window frame
     elif(nw[row-2][col]==0 and nw[row-1][col]==0):
+        height=0
+        current=0
+        while current==0:
+            height+=1
+            current=nw[row-height][col]
+        height-=1
+        left=0
+        current=0
+        while current==0:
+            left+=1
+            current=nw[row-height][col+left]
+        left-=1
+        right=0
+        current=0
+        while current==0:
+            right+=1
+            current=nw[row-height][col-right]
+        right-=1
+        if left+right+1>height:
+            return 0
         current=0
         diagB=0
         while(current==0):
@@ -736,13 +758,13 @@ def nw_entry(nw, row, col, prime):
 # Primary testing function.
 def main():
     # Input variables
-    prime_input=3 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
-    tile_length=8 # Currently tested with 8 and 16 length
-    sequence=pap_f # Currently pap_f, pap_f5, or pagoda
+    prime_input=5 # Currently tested with (pf) 3, 7, 11, and (apf) 5, and (pag) 3
+    tile_length=16 # Currently tested with 8 and 16 length
+    sequence=pap_f5 # Currently pap_f, pap_f5, or pagoda
     # Naive tiling verify
     bad_verify=False
     # Official proof tiling verify
-    true_verify=True
+    true_verify=False
     start=time.time()
     print("Tiling Test with mod", prime_input, "and tile length", tile_length)
     # tiling_output = [tiles_dict, maps_dict, tiles_by_index, cell_count]
@@ -750,27 +772,27 @@ def main():
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)
     # converted_tiling = [tiles_by_index, maps_by_index]
-    converted_tiling = convert_tiling(tiling_output[0], tiling_output[1], tiling_output[2])
-    if(bad_verify):
-        length_check=tiling_output[3]
-        pseudo_number_wall(converted_tiling[0], converted_tiling[1], sequence, prime_input, length_check)
-    if(true_verify):
-        tuple_start=time.time()
-        unique_tuples=four_tuples(converted_tiling[1])
-        print('Number of unique four-tuples =', len(unique_tuples))
-        tuple_end=time.time()
-        print("- Tuple time =", tuple_end-tuple_start)
-        verify_start=time.time()
-        proof=verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0], prime_input)
-        verify_end=time.time()
-        print("Proof result =", proof[0])
-        if(proof[0]==False):
-            print("Expected:", proof[1])
-            print("Calculated:", proof[2])
-        print("- Verify time =", verify_end-verify_start)
-        end=time.time()
-        print("- Full time =",end-start)
-        #return unique_tuples
+    # converted_tiling = convert_tiling(tiling_output[0], tiling_output[1], tiling_output[2])
+    # if(bad_verify):
+    #     length_check=tiling_output[3]
+    #     pseudo_number_wall(converted_tiling[0], converted_tiling[1], sequence, prime_input, length_check)
+    # if(true_verify):
+    #     tuple_start=time.time()
+    #     unique_tuples=four_tuples(converted_tiling[1])
+    #     print('Number of unique four-tuples =', len(unique_tuples))
+    #     tuple_end=time.time()
+    #     print("- Tuple time =", tuple_end-tuple_start)
+    #     verify_start=time.time()
+    #     proof=verify_tuples(unique_tuples, converted_tiling[0], tiling_output[0], prime_input)
+    #     verify_end=time.time()
+    #     print("Proof result =", proof[0])
+    #     if(proof[0]==False):
+    #         print("Expected:", proof[1])
+    #         print("Calculated:", proof[2])
+    #     print("- Verify time =", verify_end-verify_start)
+    #     end=time.time()
+    #     print("- Full time =",end-start)
+    #     #return unique_tuples
     return tiling_output
 #output=main()
 

@@ -1,0 +1,14 @@
+Unique tiles: 40002 - Processed tiles: 40000 - Remaining to process: 29984
+Unique tiles: 79831 - Processed tiles: 80000 - Remaining to process: 59813
+Unique tiles: 119540 - Processed tiles: 120000 - Remaining to process: 89522
+Unique tiles: 159150 - Processed tiles: 160000 - Remaining to process: 119132
+Unique tiles: 198680 - Processed tiles: 200000 - Remaining to process: 148662
+Unique tiles: 238041 - Processed tiles: 240000 - Remaining to process: 178023
+Unique tiles: 277323 - Processed tiles: 280000 - Remaining to process: 207305
+Unique tiles: 316458 - Processed tiles: 320000 - Remaining to process: 236440
+Unique tiles: 355541 - Processed tiles: 360000 - Remaining to process: 265523
+Unique tiles: 394495 - Processed tiles: 400000 - Remaining to process: 294477
+Unique tiles: 433325 - Processed tiles: 440000 - Remaining to process: 323307
+Unique tiles: 471984 - Processed tiles: 480000 - Remaining to process: 351966
+Unique tiles: 510637 - Processed tiles: 520000 - Remaining to process: 380619
+Unique tiles: 549157 - Processed tiles: 560000 - Remaining to process: 409139
