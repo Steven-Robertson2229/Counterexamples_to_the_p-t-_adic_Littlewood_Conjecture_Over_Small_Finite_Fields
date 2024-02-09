@@ -43,14 +43,18 @@ class Tile:
 
     # Function to add image tiles to a tile, and clear its scaffold list.
     def update_images (self, image_left, image_upper, image_right, image_lower):
-        self.scaffold = -1
+        self.scaffolding = -1
         self.left_image=image_left
         self.upper_image=image_upper
         self.right_image=image_right
         self.lower_image=image_lower
 
-    def __str__(self):
+    def tile_string(self):
         return f"Tile ID {self.id}, with value: \n {self.value}"
+
+    def __str__(self):
+        return str(self.value)
+        #return f"Tile ID {self.id}, with value: \n {self.value}"
 
     def str_map(self):
         return f"Parent Tile ID {self.id}, left image ID {self.left_image.id}, upper image ID {self.upper_image.id}, right image ID {self.right_image.id}, lower image ID {self.lower_image.id}"

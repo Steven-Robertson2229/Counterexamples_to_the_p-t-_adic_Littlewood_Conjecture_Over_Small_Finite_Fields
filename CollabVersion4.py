@@ -198,21 +198,17 @@ def v4(seq, prime):
             left_scaffold=image_to_tile(scaffolding[0])
             upper_scaffold=image_to_tile(scaffolding[1])
             right_scaffold=image_to_tile(scaffolding[2])
-            if(count%10000 == 0):
+            if count==0:
+                f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'w')
+            if(count%10000 == 0) and count!=0:
+                f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
+                f.write("Unique tiles: "+ str(len(tiles))+ " - Processed tiles: "+ str(count*4)+  " - Remaining to process: "+ str(len(new_tiles)))
+                f.write('\n')
+                f.close()
                 print("Unique tiles:", len(tiles), "- Processed tiles:", count*4, "- Remaining to process:", len(new_tiles))
             merged_image=nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime)
             # Split merged image tiles into constituent tiles
             # ready to be assigned as images of current tile
-            if count<1:
-                print(count)
-                print('left')
-                print(left_scaffold)
-                print('upper')
-                print(upper_scaffold)
-                print('right')
-                print(right_scaffold)
-                print('merge')
-                print(merged_image)
             image=image_split(merged_image) # Returns images as [upper,left,right,lower]
             images=[]
             for i in range(len(image)):
@@ -476,6 +472,10 @@ def verify_tuples(tuples_by_index, tiles, prime):#tiles_by_index, tiles, prime):
         # Add print block for progress
         if(index==(tuples_num*print_helper)):
             print("Verification process at", 25*print_helper,"% complete!")
+            f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
+            f.write("Verification process at"+ str(100*index/len(tuples_by_index))+"% complete!")
+            f.write('\n')
+            f.close()
             print_helper += 1
         if(tup[1]==0):
             pass
