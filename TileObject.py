@@ -1,4 +1,6 @@
-import TileRefObject as tile_ref
+#import TileRefObject as tile_ref
+# UPDATE COMMENT BELOW
+
 # This python file holds the Tile Class definition,
 # which allows Tile objects to be instantiated.
 # A tile is intended to be a unique set of numbers
@@ -15,31 +17,20 @@ import TileRefObject as tile_ref
 
 class Tile:
     tile_length = 0
+    tile_prime = 0
     def __init__(self, id: int, value: list):
         self.id = id
         self.scaffolding = [] # This will hold scaffold tiles [Left, Upper, Right]
-        # Specific constructor for zeroth tile
-        if id==0:
-            self.value = []
-            self.value.append([0 for i in range(Tile.tile_length)])
-            for i in range((Tile.tile_length-2)//2):
-                self.value.insert(0, [0 for j in range((Tile.tile_length-2)-(2*i))])
-                self.value.append([0 for j in range((Tile.tile_length-2)-(2*i))])
-            self.left_image = self
-            self.upper_image = self
-            self.right_image = self
-            self.lower_image = self
-        else:
-            self.value = value
-            self.left_image = '*'
-            self.upper_image = '*'
-            self.right_image = '*'
-            self.lower_image = '*'
+        self.value = value
+        self.left_image = '*'
+        self.upper_image = '*'
+        self.right_image = '*'
+        self.lower_image = '*'
 
     # We pass in the image tile ref to this function to save 'figuring out' which image variable to change
     # This function is now defunct, with the move to just using Tile objects.
-    def update_mapping (self, image_tile_ref: tile_ref.TileRef, image_tile):
-        image_tile_ref.image_tile = image_tile
+    #def update_mapping (self, image_tile_ref: tile_ref.TileRef, image_tile):
+    #    image_tile_ref.image_tile = image_tile
 
     # Function to add image tiles to a tile, and clear its scaffold list.
     def update_images (self, image_left, image_upper, image_right, image_lower):

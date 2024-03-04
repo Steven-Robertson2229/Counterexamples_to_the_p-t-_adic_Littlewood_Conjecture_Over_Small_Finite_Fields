@@ -2,7 +2,6 @@ import TileObject as TO
 import time
 import CommonFunctions as CF
 import CollabVersion3 as V3
-import TileRefObject as TR
 import CollabVersion3Plus as V3P
 import Find_sub_rules as SR
 
@@ -111,9 +110,10 @@ def div(num, prime):
     print("Input: ", prime)
     return "ERROR"
 
-def v4(seq, prime):
+def input_generator(seq, write_output):
     sub_rules,coding=SR.sub_rule_full(seq)
     tile_len=len(coding[0][1])
+    prime=TO.Tile.tile_prime
     print('sub_rules=')
     for i in sub_rules:
         print(i)
@@ -123,7 +123,8 @@ def v4(seq, prime):
     tiles={}
     new_tiles=[]
     tiles_by_index=[]
-    # Instantiate Tile object for the tile f all zeros
+    # Instantiate Tile object for the tile of all zeros
+    # FIX THIS
     tile0_value=[[0 for i in range(tile_len)]]
     for i in range(tile_len//2 -1):
         tile0_value.insert(0,([0 for i in range(tile_len-2-2*i)]))
@@ -160,7 +161,6 @@ def v4(seq, prime):
         new_tile=TO.Tile(len(tiles),prev_wall)
         tiles[key]=new_tile
         tiles_by_index.append(new_tile)
-        #print(new_tile)
     # Generate images for top row tiles using substitution rules + zero tile
     for i in range(len(sub_rules)):
         left=sub_rules[i][1][0]
@@ -180,16 +180,18 @@ def v4(seq, prime):
             unique=new_tile
         current_tile=tiles_by_index[i+2]
         current_tile.update_images(left_tile, tile0, right_tile, unique)
-    #for i in tiles:
-     #   print(tiles[i])
-      #  print('image=',tiles[i].left_image,tiles[i].upper_image,tiles[i].right_image,tiles[i].lower_image)
+    return tile_computation(tiles, new_tiles, write_output)
+
+# Add desc ***
+def tile_computation(tiles, new_tiles, write_output):
     # Loop through list of tiles (excluding input section)
     # identifying the images of each tile
-    count = 0
+    count = 1
+    prime=TO.Tile.tile_prime
+    if write_output:
+        f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'w')
     while (new_tiles != []):
         tile=new_tiles.pop(0)
-        #for i in tile.scaffolding:
-         #   print(i)
         if (tile.scaffolding != -1): # REMOVE******
             scaffolding=tile.scaffolding
             # Generate full image 4-tuples from scaffold tiles
@@ -198,14 +200,13 @@ def v4(seq, prime):
             left_scaffold=image_to_tile(scaffolding[0])
             upper_scaffold=image_to_tile(scaffolding[1])
             right_scaffold=image_to_tile(scaffolding[2])
-            if count==0:
-                f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'w')
-            if(count%10000 == 0) and count!=0:
-                f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
-                f.write("Unique tiles: "+ str(len(tiles))+ " - Processed tiles: "+ str(count*4)+  " - Remaining to process: "+ str(len(new_tiles)))
-                f.write('\n')
-                f.close()
-                print("Unique tiles:", len(tiles), "- Processed tiles:", count*4, "- Remaining to process:", len(new_tiles))
+            if(count%10000 == 0):
+                if write_output:
+                    f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
+                    f.write("Unique tiles: "+ str(len(tiles))+ " - Processed tiles: "+ str(count*4)+  " - Unprocessed tile backlog: "+ str(len(new_tiles)))
+                    f.write('\n')
+                    f.close()
+                print("Unique tiles:", len(tiles), "- Processed tiles:", count*4, "- Unprocessed tile backlog:", len(new_tiles))
             merged_image=nw_from_scaffold(left_scaffold, upper_scaffold, right_scaffold, prime)
             # Split merged image tiles into constituent tiles
             # ready to be assigned as images of current tile
@@ -224,6 +225,7 @@ def v4(seq, prime):
                     new_tiles.append(new_tile)
                     # Construct scaffolding for new_tile
                     # For surety on scaffolding assembly, check 'general case' diagram
+                    # ADD DIAGRAM FROM PAPER***
                     # Hint: scaffolding variable is a list of [left, upper, right] scaffold tiles for the parent tile
                     if(i == 0): # Upper tile
                         new_tile.scaffolding=[scaffolding[0].right_image, scaffolding[1].lower_image, scaffolding[2].left_image]
@@ -240,9 +242,9 @@ def v4(seq, prime):
             # Update the image tiles of the current tile
             tile.update_images(images[1], images[0], images[2], images[3])
         count+=1
-    
     return tiles
 
+# Add func description
 def one_up_sub(seq,prime,tile_len):
     prev_wall=[[0],[1],[seq[0]]]
     for i in range(1,len(seq)):
@@ -262,7 +264,6 @@ def one_up_sub(seq,prime,tile_len):
         if new_tile not in tiles:
             tiles.append(new_tile)
         tiling[0].append(tiles.index(new_tile))
-    #print(tiles)
     for i in range(len(seq)//tile_len-1):
         second_tile=[[prev_wall[1+tile_len//2][j] for j in range(tile_len*i,tile_len*(i+1))]]
         for j in range(tile_len//2-1):
@@ -276,8 +277,6 @@ def one_up_sub(seq,prime,tile_len):
         if second_tile not in tiles:
             tiles.append(second_tile)
         tiling[1].append(tiles.index(second_tile))
-    #print([prev_wall[1+tile_len//2][i] for i in range(14)])
-    #print([prev_wall[2+tile_len//2][i] for i in range(16)])
     return tiles,tiling
 
 # Function to split full image 4 tuple into constituent parts    
@@ -397,7 +396,8 @@ def image_to_tile(tile: TO.Tile):
             output[middle+1+i][j+tile_len]=right_tile.value[tile_middle+1+i][j]
     return output
 
-def four_tuples(tiles):
+# Add func description
+def generate_four_tuples(tiles):
     maps=[]
     for i in tiles:
         maps.append([tiles[i].left_image.id,tiles[i].upper_image.id,tiles[i].right_image.id,tiles[i].lower_image.id])
@@ -454,11 +454,12 @@ def four_tuples(tiles):
             if not unique: # If tuple not in tuples dictionary
                 unique_tuples[key]=new_tup # Add to tuples dictionary
                 maps.append(new_tup)
-                #print(new_tup)
     return maps
 
-def verify_tuples(tuples_by_index, tiles, prime):#tiles_by_index, tiles, prime):
+# Add func description
+def verify_four_tuples(tuples_by_index, tiles, write_output):
     tiles_by_index=[]
+    prime=TO.Tile.tile_prime
     for i in tiles:
         tiles_by_index.append(tiles[i].value)
     tile_len=len(tiles_by_index[0])+1
@@ -468,14 +469,13 @@ def verify_tuples(tuples_by_index, tiles, prime):#tiles_by_index, tiles, prime):
     count=0
     for tup in tuples_by_index[2:]:
         count+=1
-        #print(tup)
-        # Add print block for progress
         if(index==(tuples_num*print_helper)):
             print("Verification process at", 25*print_helper,"% complete!")
-            f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
-            f.write("Verification process at"+ str(100*index/len(tuples_by_index))+"% complete!")
-            f.write('\n')
-            f.close()
+            if write_output:
+                f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
+                f.write("Verification process at"+ str(100*index/len(tuples_by_index))+"% complete!")
+                f.write('\n')
+                f.close()
             print_helper += 1
         if(tup[1]==0):
             pass
@@ -508,8 +508,6 @@ def verify_tuples(tuples_by_index, tiles, prime):#tiles_by_index, tiles, prime):
                     incomplete_nw[tile_it-i-1][2+j+i+tile_it]=tile[tile_it-1-i][j]
                     incomplete_nw[tile_it+1+i][2+i+j+tile_it]=tile[tile_it+1+i][j]
             # Calculate lower tile
-            #print(tup)
-            #print(incomplete_nw)
             complete_nw=nw_from_tuple(incomplete_nw, prime)
             # Extract calculated lower tile
             calculated_four_tuple=[complete_nw[tile_len+tile_len//2-1][tile_len//2:tile_len+tile_len//2]]
@@ -627,20 +625,22 @@ def main():
     #coding=pf_coding # Must match sequence used for sub_rules
     prime=3 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
     TO.Tile.tile_length=8 # Set tile length from sequence coding
+    TO.Tile.tile_prime=prime # Set the prime to be used in the prime, to save passing the param to every function
     seq=[CF.pap_f(i) for i in range(0,500)]
+    write_output = False # Instructs the progress reports to be written to disk as well as std-out
     start=time.time()
     print("Tiling Test with mod", prime, "and tile length", TO.Tile.tile_length)
-    tiling_output=v4(seq,prime)
+    tiling_output=input_generator(seq, write_output)
     tiling_time=time.time()
     print("- Tiling time =", tiling_time-start)
     print("Total number of unique tiles:", len(tiling_output))
     tuple_start=time.time()
-    unique_tuples=four_tuples(tiling_output)
+    unique_tuples=generate_four_tuples(tiling_output)
     print('Number of unique four-tuples =', len(unique_tuples))
     tuple_end=time.time()
     print("- Tuple time =", tuple_end-tuple_start)
     verify_start=time.time()
-    proof=verify_tuples(unique_tuples, tiling_output, prime)
+    proof=verify_four_tuples(unique_tuples, tiling_output, write_output)
     verify_end=time.time()
     print("- Verify time =", verify_end-verify_start)
     print("Proof result =", proof[0])
