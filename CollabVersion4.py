@@ -5,111 +5,13 @@ import CollabVersion3 as V3
 import CollabVersion3Plus as V3P
 import Find_sub_rules as SR
 
-# Function to find all unique tiles and mappings/substitutions
+# Set of functions to find all unique tiles and mappings/substitutions
 # following the Version 4 process as defined in the CHANGELOG.md
 # This function finds every image tile of every unique tile. Once
 # this process is complete, every substitution rule for the number wall
 # has been identified.
 
-def ratio(X, Y, prime):
-   return (X*div(Y, prime)) % prime
-
-# Note: this only works with prime 2, 3, 5, 7, 11, and 19
-def div(num, prime):
-    num=num%prime
-    if prime==2:
-        return 1
-    elif prime==3:
-        if num==1:
-            return 1
-        else: # num==2:
-            return 2
-    elif prime==5:
-        if num==1:
-            return 1
-        elif num==2:
-            return 3
-        elif num==3:
-            return 2
-        else: # num==4:
-            return 4
-    elif prime==7:
-        if num==1:
-            return 1
-        elif num==2:
-            return 4
-        elif num==3:
-            return 5
-        elif num==4:
-            return 2
-        elif num==5:
-            return 3
-        else: # num==6:
-            return 6
-    elif prime==11:
-        if num==1:
-            return 1
-        elif num==2:
-            return 6
-        elif num==3:
-            return 4
-        elif num==4:
-            return 3
-        elif num==5:
-            return 9
-        elif num==6:
-            return 2
-        elif num==7:
-            return 8
-        elif num==8:
-            return 7
-        elif num==9:
-            return 5
-        else: # num==10:
-            return 10
-    else: # prime==19:
-        if num==1:
-            return 1
-        elif num==2:
-            return 10
-        elif num==3:
-            return 13
-        elif num==4:
-            return 5
-        elif num==5:
-            return 4
-        elif num==6:
-            return 16
-        elif num==7:
-            return 11
-        elif num==8:
-            return 12
-        elif num==9:
-            return 17
-        elif num==10:
-            return 2
-        elif num==11:
-            return 7
-        elif num==12:
-            return 8
-        elif num==13:
-            return 3
-        elif num==14:
-            return 15
-        elif num==15:
-            return 14
-        elif num==16:
-            return 6
-        elif num==17:
-            return 9
-        else: # num==18:
-            return 18
-
-    # otherwise it was a bad input
-    print("ERROR - bad input to div function.")
-    print("Input: ", prime)
-    return "ERROR"
-
+# Function to 
 def input_generator(seq, write_output):
     sub_rules,coding=SR.sub_rule_full(seq)
     tile_len=len(coding[0][1])
@@ -192,7 +94,7 @@ def tile_computation(tiles, new_tiles, write_output):
         f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'w')
     while (new_tiles != []):
         tile=new_tiles.pop(0)
-        if (tile.scaffolding != -1): # REMOVE******
+        if (tile.scaffolding != -1): # REMOVE******?
             scaffolding=tile.scaffolding
             # Generate full image 4-tuples from scaffold tiles
             # to allow all four image tiles of the current tile to
@@ -527,9 +429,11 @@ def verify_four_tuples(tuples_by_index, tiles, write_output):
                     print(calculated_four_tuple)
                 return [False, expected_tuple, calculated_four_tuple]
         count += 1
+    # Return true here only triggers if no mismatches have been found
+    # in the entire set.
     return [True]
         
-# Generates the 4th tile of a section of number wall
+# Generates the 4th tile (lower tile) of a section of number wall
 # using the three tiles above. Calls nw_entry function
 # for calculation logic on each cell.
 def nw_from_tuple(incomplete_nw, prime):
@@ -557,7 +461,7 @@ def nw_entry(nw, row, col, prime):
         return 0
     # Case 1 - non-window (standard wall entry)
     elif(nw[row-2][col]!=0):
-        result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*div(nw[row-2][col], prime))%prime
+        result=(((nw[row-1][col]**2)-(nw[row-1][col-1]*nw[row-1][col+1]))*CF.div(nw[row-2][col], prime))%prime
         return result
     # Case 2 - inner window frame
     elif(nw[row-2][col]==0 and nw[row-1][col]==0):
@@ -576,7 +480,7 @@ def nw_entry(nw, row, col, prime):
         C=nw[row-diagA][col+diagA]
         length=diagA+diagB-1
         k=diagA
-        return ((((-1)**(length*k))*B*C)*div(A, prime))%prime
+        return ((((-1)**(length*k))*B*C)*CF.div(A, prime))%prime
     # Case 3 - outer window frame
     else:
         current=0
@@ -586,7 +490,7 @@ def nw_entry(nw, row, col, prime):
            current=nw[row-1-diagB][col-diagB]
         B=current
         F=nw[row-1-diagB][col-1-diagB]
-        rB=(B*div(nw[row-2-diagB][col-diagB],prime))%prime
+        rB=(B*CF.div(nw[row-2-diagB][col-diagB],prime))%prime
         current=0
         diagA=0
         while(current==0):
@@ -594,26 +498,26 @@ def nw_entry(nw, row, col, prime):
             current=nw[row-1-diagB-diagA][col-diagB+diagA]
         A=current
         E=nw[row-2-diagB-diagA][col-diagB+diagA]
-        rA=(A*div(nw[row-1-diagB-diagA][col-1-diagB+diagA], prime))%prime
+        rA=(A*CF.div(nw[row-1-diagB-diagA][col-1-diagB+diagA], prime))%prime
         C=nw[row-1-diagA][col+diagA]
         G=nw[row-1-diagA][col+diagA+1]
-        rC=(C*div(nw[row-1-diagA+1][col+diagA], prime))%prime
+        rC=(C*CF.div(nw[row-1-diagA+1][col+diagA], prime))%prime
         length=diagA+diagB-1
         k=diagA
         D=nw[row-1][col]
-        rD=(D*div(nw[row-1][col+1], prime))%prime
-        calc1=(rB*E*div(A, prime))%prime
-        calc2=(((-1)**k)*(rA*F*div(B, prime)))%prime
-        calc3=(((-1)**k)*(rD*G*div(C, prime)))%prime
-        calc4=(rC*div(D, prime))%prime
-        return ((calc1+calc2-calc3)*div(calc4, prime))%prime
+        rD=(D*CF.div(nw[row-1][col+1], prime))%prime
+        calc1=(rB*E*CF.div(A, prime))%prime
+        calc2=(((-1)**k)*(rA*F*CF.div(B, prime)))%prime
+        calc3=(((-1)**k)*(rD*G*CF.div(C, prime)))%prime
+        calc4=(rC*CF.div(D, prime))%prime
+        return ((calc1+calc2-calc3)*CF.div(calc4, prime))%prime
     
-def seconds_to_hours(tot_time):
-    minutes=tot_time//60
-    seconds=tot_time%60
+def seconds_to_hours(total_time):
+    minutes=total_time//60
+    seconds=total_time%60
     hours=minutes//60
     minutes=minutes%60
-    return 'total time = '+str(hours)+' hours, '+str(minutes)+' minutes and '+str(seconds)+' seconds ' 
+    return 'Total time = '+str(hours)+' hours, '+str(minutes)+' minutes and '+str(seconds)+' seconds.' 
     
 # Primary testing function.
 def main():
@@ -623,7 +527,7 @@ def main():
     # *_coding is the input sequence split into the size of the input tiles
     #pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
     #coding=pf_coding # Must match sequence used for sub_rules
-    prime=3 # Currently tested with (pf) 3, 7 and (apf) N/A, and (pag) N/A
+    prime=3 # Currently tested with (pf) 3, 7, 11 and (apf) 5.
     TO.Tile.tile_length=8 # Set tile length from sequence coding
     TO.Tile.tile_prime=prime # Set the prime to be used in the prime, to save passing the param to every function
     seq=[CF.pap_f(i) for i in range(0,500)]

@@ -4,6 +4,7 @@
 def ratio(X, Y, prime):
    return (X*div(Y, prime)) % prime
 
+# Lazy div function
 # Note: this only works with prime 2, 3, 5, 7, 11, and 19
 def div(num, prime):
     num=num%prime

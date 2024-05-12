@@ -1,21 +1,9 @@
 # Collab_Number_Wall
 This project is looking to investigate generating Number Walls primarily using
-the Paper Folding sequence, looking to find a complete set of tiling for mod 7, mod 11, and more.
+the Paper Folding sequence and Adapted Paper Folding sequence, looking to find a complete set of tiling for mod 7 and mod 11 (for Paper Folding), and mod 5 (for Adapted Paper Folding).
 
 ## Quickstart Testing
 TODO
-
-## Function Overviews
-TODO
-
-### Pseudo Number Wall Function
-This is verification of the substitution rules found in the
-Tiling function being correct and true for a finite portion of the number wall. We generate a 'true' number wall using
-the regular calculations, and an 'expected' number wall using our pre-calculated
-tile substitution rules, and compare the two. The walls are both generated slice by slice.
-We expect this function to fail for larger primes, as the length of number wall used to
-discover all of the unique tiles and substitution rules becomes too large to generate number
-walls longer than itself to fully verify the rules.
 
 ## Expected Outputs
 Below is a list of the expected outputs from core functions for common/expected
@@ -34,7 +22,6 @@ Input:
 - tile_length=8
 
 Output= **211 unique tiles** after approx 200 slices, and **837 total tiles processed (out of 21735)**
-Time to process = approx 1 second
 
 Input:
 - prime_input=3
@@ -42,7 +29,6 @@ Input:
 - tile_length=16
 
 Output= **197 unique tiles** after approx 184 slices, and **779 total tiles processed (out of ??)**
-Time to process = approx 3 seconds
 
 Input:
 - prime_input=5
@@ -50,7 +36,6 @@ Input:
 - tile_length=16
 
 Output= **?? unique tiles** after approx ?? slices, and **?? total tiles processed (out of ??)**
-Time to process = approx ?? second
 
 Input:
 - prime_input=7
@@ -59,7 +44,6 @@ Input:
 
 Output= **302,835 unique tiles** after approx 15,000 slices (stabilising at 7500 slices)
 and **1,211,333 total tiles processed (out of 112,147,775)**
-Time to process = approx 84 minutes
 
 Input:
 - prime_input=11
@@ -68,84 +52,32 @@ Input:
 
 Output= **7,864,003 unique tiles** after approx 184,200 slices (stabilising at 92,100 slices)
 and **31,456,005 total tiles processed (out of ???)**
-Time to process = approx 211.82 hours
 
 ### Four Tuples Function
 Input (*paper folding sequence*):
 - list of unique tile mappings generated from **prime 3**
 
 Output= **681 unique four-tuples**
-Time to process = approx 0 seconds
 
 Input (*pagoda sequence*):
 - list of unique tile mappings generated from **prime 3**
 
 Output= **573 unique four-tuples**
-Time to process = approx 0 seconds
 
 Input (*adapted paper folding sequence*):
 - list of unique tile mappings generated from **prime 5**
 
 Output= **?? unique four-tuples**
-Time to process = approx ?? seconds
 
 Input (*paper folding sequence*):
 - list of unique tile mappings generated from **prime 7**
 
 Output= **1,575,729 unique four-tuples**
-Time to process = approx 5 seconds
 
 Input (*paper folding sequence*):
 - list of unique tile mappings generated from **prime 11**
 
 Output= **42,736,009 unique four-tuples**
-Time to process = approx 130 seconds
-
-### Verify Tuples Function
-Input (*paper folding sequence*):
-- list of unique tile mappings generated from **prime 3**, including additional entries from four_tuples()
-- list of unique tiles generated from **prime 3**
-- dictionary of unique tiles generated from **prime 3**
-- prime_input=3
-
-Output= TRUE
-Time to process = approx 0 seconds
-
-Input (*pagoda sequence*):
-- list of unique tile mappings generated from **prime 3**, including additional entries from four_tuples()
-- list of unique tiles generated from **prime 3**
-- dictionary of unique tiles generated from **prime 3**
-- prime_input=3
-
-Output= TRUE
-Time to process = approx 0 seconds
-
-Input (*adapted paper folding sequence*):
-- list of unique tile mappings generated from **prime 5**, including additional entries from four_tuples()
-- list of unique tiles generated from **prime 5**
-- dictionary of unique tiles generated from **prime 5**
-- prime_input=5
-
-Output= ??
-Time to process = approx ?? seconds
-
-Input (*paper folding sequence*):
-- list of unique tile mappings generated from **prime 7**, including additional entries from four_tuples()
-- list of unique tiles generated from **prime 7**
-- dictionary of unique tiles generated from **prime 7**
-- prime_input=7
-
-Output= TRUE
-Time to process = approx 86 seconds
-
-Input (*paper folding sequence*):
-- list of unique tile mappings generated from **prime 11**, including additional entries from four_tuples()
-- list of unique tiles generated from **prime 11**
-- dictionary of unique tiles generated from **prime 11**
-- prime_input=11
-
-Output= TRUE
-Time to process = approx 38.25 minutes
 
 ## External links
 You can find several papers discussing the background to this work below:

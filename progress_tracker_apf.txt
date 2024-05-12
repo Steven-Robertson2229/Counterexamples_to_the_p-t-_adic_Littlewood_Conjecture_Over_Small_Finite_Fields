@@ -1,3 +1,0 @@
-Unique tiles: 37385 - Processed tiles: 40000 - Remaining to process: 27377
-Unique tiles: 70170 - Processed tiles: 80000 - Remaining to process: 50162
-Verification process at0.0% complete!
