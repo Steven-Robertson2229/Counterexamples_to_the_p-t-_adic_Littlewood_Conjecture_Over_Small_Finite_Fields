@@ -398,26 +398,27 @@ def image_to_tile(tile: TO.Tile):
 
 # Add func description
 def generate_four_tuples(tiles):
-    maps=[]
+    tuples_by_index=[]
     for i in tiles:
-        maps.append([tiles[i].left_image.id,tiles[i].upper_image.id,tiles[i].right_image.id,tiles[i].lower_image.id])
+        tile_curr=tiles[i]
+        tuples_by_index.append([tile_curr.left_image.id,tile_curr.upper_image.id,tile_curr.right_image.id,tile_curr.lower_image.id])
    # Build dict of unique images
-    unique_tuples={}
-    for tup1 in maps:
-        key=str(tup1)
-        unique_tuples[key]=tup1
+    tuples={}
+    for tups in tuples_by_index:
+        key=str(tups)
+        tuples[key]=tups
     # For each mapping, check the unknown tuple combinations for new tuples
     # Skip first entry, its all zeros
-    c=0
-    for tup in maps:
-        c+=1
+    count=0
+    for tup in tuples_by_index:
+        count+=1
         # Take care when zero tiles are present
         # Treat four tuple rotated as a square
         image_tuple=[['*' for i in range(4)] for j in range(4)]
-        entry_image1=maps[tup[0]]
-        entry_image2=maps[tup[1]]
-        entry_image3=maps[tup[2]]
-        entry_image4=maps[tup[3]]
+        entry_image1=tuples_by_index[tup[0]]
+        entry_image2=tuples_by_index[tup[1]]
+        entry_image3=tuples_by_index[tup[2]]
+        entry_image4=tuples_by_index[tup[3]]
         # Left image
         image_tuple[0][0]=entry_image1[0]
         image_tuple[0][1]=entry_image1[1]
@@ -441,20 +442,21 @@ def generate_four_tuples(tiles):
         # Search for new tuples
         new_tuples=[]
 
+        # Take care when zero tiles are present, those should not be used when forming the Upper and Right tuples
         if tup[1]>1:
             new_tuples.append([image_tuple[0][1],image_tuple[0][2],image_tuple[1][2],image_tuple[1][1]]) # Upper tuple
             new_tuples.append([image_tuple[1][2],image_tuple[1][3],image_tuple[2][3],image_tuple[2][2]]) # Right tuple
         new_tuples.append([image_tuple[1][0],image_tuple[1][1],image_tuple[2][1],image_tuple[2][0]]) # Left tuple
-        new_tuples.append([image_tuple[2][1],image_tuple[2][2],image_tuple[3][2],image_tuple[3][1]]) # Bottom tuple
+        new_tuples.append([image_tuple[2][1],image_tuple[2][2],image_tuple[3][2],image_tuple[3][1]]) # Lower tuple
         new_tuples.append([image_tuple[1][1],image_tuple[1][2],image_tuple[2][2],image_tuple[2][1]]) # Middle tuple
         # Check each new tuple for uniqueness
         for new_tup in new_tuples:
             key=str(new_tup)
-            unique=unique_tuples.get(key)
+            unique=tuples.get(key)
             if not unique: # If tuple not in tuples dictionary
-                unique_tuples[key]=new_tup # Add to tuples dictionary
-                maps.append(new_tup)
-    return maps
+                tuples[key]=new_tup # Add to tuples dictionary
+                tuples_by_index.append(new_tup)
+    return tuples_by_index
 
 # Add func description
 def verify_four_tuples(tuples_by_index, tiles, write_output):
@@ -463,17 +465,15 @@ def verify_four_tuples(tuples_by_index, tiles, write_output):
     for i in tiles:
         tiles_by_index.append(tiles[i].value)
     tile_len=len(tiles_by_index[0])+1
-    index=0
     tuples_num=len(tuples_by_index)//4
     print_helper=1
     count=0
     for tup in tuples_by_index[2:]:
-        count+=1
-        if(index==(tuples_num*print_helper)):
+        if(count==(tuples_num*print_helper)):
             print("Verification process at", 25*print_helper,"% complete!")
             if write_output:
                 f=open('progress_tracker_apf_F'+str(prime)+'.txt', 'a')
-                f.write("Verification process at"+ str(100*index/len(tuples_by_index))+"% complete!")
+                f.write("Verification process at"+ str(100*count/len(tuples_by_index))+"% complete!")
                 f.write('\n')
                 f.close()
             print_helper += 1
@@ -517,8 +517,8 @@ def verify_four_tuples(tuples_by_index, tiles, write_output):
             expected_tuple=tiles_by_index[tup[3]]
             if (expected_tuple!=calculated_four_tuple):
                 # Mismatch between computed four tuple and expected four tuple
-                for l in incomplete_nw:
-                    print(l)
+                for error in incomplete_nw:
+                    print(error)
                 if calculated_four_tuple in tiles_by_index:
                     print('index of calculated four tuple =')
                     print(tiles_by_index.index(calculated_four_tuple))
@@ -526,7 +526,7 @@ def verify_four_tuples(tuples_by_index, tiles, write_output):
                     print('calculated four tuple not a tile')
                     print(calculated_four_tuple)
                 return [False, expected_tuple, calculated_four_tuple]
-        index += 1
+        count += 1
     return [True]
         
 # Generates the 4th tile of a section of number wall
