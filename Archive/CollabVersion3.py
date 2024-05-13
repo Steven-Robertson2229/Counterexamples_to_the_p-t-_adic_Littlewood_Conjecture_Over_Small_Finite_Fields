@@ -1,5 +1,4 @@
 import time
-import random as rn
 import copy as cop
 
 # This python file is the Version 3 of the Number Wall tiling functionality.

@@ -1,9 +1,7 @@
 import time
-import random as rn
 import copy as cop
 import CommonFunctions as funct
 import TileObject as tile
-import TileRefObject as tile_ref
 import CollabVersion3 as source
 
 # *** THIS FUNCTION NEEDS TO BE UPDATED TO REFLECT CHANGES TO THE Tile CLASS

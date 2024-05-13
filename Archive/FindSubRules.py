@@ -72,71 +72,76 @@ def pf_16(n):
 
 def pf_16seq(start,end):
     return [pf_16(i) for i in range(start,end+1)]
+
+###
 def find_sub_rules(seq):
-    l=0 #2**l is the length of the tile
-    while l>=0:
-        maps=[] #these are the sub_stitution rules
-        for i in range(len(seq)//(2**(l+1))):
-            #generate new map
-            new_map=[[seq[i* 2**l + j] for j in range(2**l)]\
-                     ,[seq[i* 2**(l+1) + j] for j in range(2**(l+1))]]
+    length = 0 # 2**length is the length of the tile
+    while length >= 0:
+        maps = [] # these are the substitution rules
+        for i in range(len(seq)//(2**(length+1))):
+            # generate new map
+            new_map = [[seq[i* 2**length + j] for j in range(2**length)]\
+                     ,[seq[i* 2**(length+1) + j] for j in range(2**(length+1))]]
             if new_map not in maps:
-                check=False
+                check = False
                 for j in maps:
-                    #check if new_map is inconsistant with existing maps
-                    if j[0]==new_map[0]:
-                        check=True
+                    # check if new_map is inconsistant with existing maps
+                    if j[0] == new_map[0]:
+                        check = True
                         break
-                if check==False:
+                if check == False:
                     maps.append(new_map)
-                else:#if new_map was inconsistant, increase l by 1 and restart
-                    l+=1
+                else: # if new_map was inconsistant, increase length by 1 and restart
+                    length += 1
                     break
-        if check==False:
+        if check == False:
             return maps
-        
-#Generates the sub_rules and the coding that govens the sequence
+
+###
+# Function to generate the sub_rules and the coding that governs the sequence
 def maps_to_sub_rules(maps):
-    sub_rules=[]
-    tiles=[i[0] for i in maps]
-    coding=[]
+    sub_rules = []
+    tiles = [i[0] for i in maps]
+    coding = []
     for i in range(1,len(maps)+1):
-        rule=[i,[]]
-        l=len(maps[i-1][1])//2
-        left_image=maps[i-1][1][:l]
-        right_image=maps[i-1][1][l:]
+        rule = [i,[]]
+        length = len(maps[i-1][1])//2
+        left_image = maps[i-1][1][:length]
+        right_image = maps[i-1][1][length:]
         rule[1].append(tiles.index(left_image)+1)
         rule[1].append(tiles.index(right_image)+1)
         sub_rules.append(rule)
         coding.append([i,tiles[i-1]])
-    return sub_rules,coding
+    return sub_rules, coding
 
-#Applies the sub_rules and coding until the tiles are of desired length
-def apply_coding(sub_rules,coding):
-    large_coding=[]
-    for i in range(len(sub_rules)):#for each sub_rule
-        rule=[i+1]
-        image=sub_rules[i][1]
+###
+# Function to apply the sub_rules and coding until the tiles are of desired length
+def apply_coding(sub_rules, coding):
+    large_coding = []
+    for i in range(len(sub_rules)): # for each sub_rule
+        rule = [i+1]
+        image = sub_rules[i][1]
         while len(image)<TO.Tile.tile_length//(len(coding[0][1])):
-            #apply sub_rules and coding until the image is long enough
-            new_image=[]
+            # apply sub_rules and coding until the image is long enough
+            new_image = []
             for k in image:
                 new_image.append(sub_rules[k-1][1][0])
                 new_image.append(sub_rules[k-1][1][1])
-            image=new_image
-        cod=[]
+            image = new_image
+        code = []
         for j in image:
             for k in range(len(coding[0][1])):
-                cod.append(coding[j-1][1][k])
-        rule.append(cod)
+                code.append(coding[j-1][1][k])
+        rule.append(code)
         large_coding.append(rule)
     return large_coding
 
-#Combines all above functions into one
+###
+# Function to invoke all sub-functions and return resultant substitution rules
 def sub_rule_full(seq):
-    maps=find_sub_rules(seq)
-    sub_rules,coding=maps_to_sub_rules(maps)
-    large_coding=apply_coding(sub_rules, coding)
+    maps = find_sub_rules(seq)
+    sub_rules, coding = maps_to_sub_rules(maps)
+    large_coding = apply_coding(sub_rules, coding)
     return sub_rules, large_coding
 
 

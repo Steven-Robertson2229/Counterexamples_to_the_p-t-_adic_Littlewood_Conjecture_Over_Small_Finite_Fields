@@ -2,9 +2,6 @@ import TileObject as TO
 import time
 import CommonFunctions as CF
 import CollabVersion3 as V3
-import TileRefObject as TR
-import CollabVersion3Plus as V3P
-import Find_sub_rules as SR
 
 # Function to find all unique tiles and mappings/substitutions
 # following the Version 4 process as defined in the CHANGELOG.md

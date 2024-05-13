@@ -1,4 +1,4 @@
-
+# Redundant tile support class from an old version of the Tile class
 
 class TileRef:
     def __init__(self, image_tile):
