@@ -290,7 +290,7 @@ def verify_four_tuples(tuples_by_index, tiles, write_output):
     # Return true here only triggers if no mismatches have been found in the entire set.
     return [True]
 
-# Below are multiple supporting sub-functions that support the four primary
+# Below are multiple helper functions that support the four primary
 # algorithm computation functions.
 
 # Function to split full image 4-tuple into constituent parts    
@@ -473,7 +473,7 @@ def nw_from_tuple(incomplete_nw, prime):
     return incomplete_nw
 
 # Calculates number wall entry for a single cell.
-# Doesn't currently include full cheat list
+# Doesn't currently include full cheat list for window frame constraints
 # Potential future improvement..
 def nw_entry(nw, row, col, prime):
     # Case zero - inside window
@@ -609,16 +609,6 @@ def seconds_to_hours(total_time):
     
 # Primary testing function.
 def main():
-
-    # Steven do we need this block for anything? my guess is no, as I think it is superceded by the functions from FindSubRules.py
-
-    # *_sub_rules is the input substitution rules for tiles on the top row of this sequence
-    #pf_sub_rules=[['1','12'],['2','32'],['3','14'],['4','34']]
-    #sub_rules=pf_sub_rules # Pick the substitution rules of your desired sequence
-    # *_coding is the input sequence split into the size of the input tiles
-    #pf_coding=[['1','00100110'],['2','00110110'],['3','00100111'],['4','00110111']]
-    #coding=pf_coding # Must match sequence used for sub_rules
-
     prime=3 # Currently tested with (pf) 3, 7, 11 and (apf) 5.
     TO.Tile.tile_length=8 # Set tile length from sequence coding
     TO.Tile.tile_prime=prime # Set the prime to be used in the program, to save passing the parameter to every function
