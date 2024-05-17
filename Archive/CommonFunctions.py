@@ -95,7 +95,6 @@ def div(num, prime):
             return 9
         else: # num==18:
             return 18
-
     # otherwise it was a bad input
     print("ERROR - bad input to div function.")
     print("Input: ", prime)
