@@ -978,7 +978,7 @@ def verify_tuples(tuples_by_index, tiles, prime,position,start_time,write_output
         if count%30000==0:#edit for frequence of print statements
             if write_output:
                 print('verification at '+str(100*count/len(tuples_by_index))+'%')
-            if time.time()-start-start_time>max_time:
+            if time.time()-start>max_time:
                 print(tuples_by_index.index(tup))# returns how far through the verification it got
                 return count
         incomplete_nw=[['*' for i in range(2*tile_len)] for j in range(2*tile_len-1)]
